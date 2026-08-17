@@ -1,0 +1,150 @@
+---
+pid: 77382
+cwd: /Users/a1111/Desktop/RKHS优化问题
+last_command: python -u midterm_final.py --snr-list "0,2,4,6,8,10" --n-chan 3
+last_exit_code: 0
+---
+  [H1/3 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [H1/3 SNR=   4] RKHS Oracle    完成  BER=0.000e+00     5.0s  n_center=2000 approx_fstar_struct γ=2.27e-02 MSE_te=2.14e-21
+    J*=0.0000 J_oracle=0.0000 J_rkhs_nn=1.2982
+  [H1/3 SNR=   6] 开始六方法…
+  [H1/3 SNR=   6] MLD            完成  BER=0.000e+00     0.0s
+  [H1/3 SNR=   6] MMSE+LS        完成  BER=1.096e-01     0.1s  MC×5
+  [H1/3 SNR=   6] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H1/3 SNR=   6] RKHS(z_rob)    完成  BER=9.642e-02   104.7s  n_center=2000 α=approx_hard_proj[mkl:0.00+bag1:0.25+nn:0.41+diag:0.33]_struct_hat_robust trSER=0.308
+  [H1/3 SNR=   6] CNN(盲)         完成  BER=1.317e-01    27.4s  trSER=0.072
+  [H1/3 SNR=   6] Oracle        struct(H)+f* 拟合…
+  [H1/3 SNR=   6] RKHS Oracle    完成  BER=0.000e+00     4.9s  n_center=2000 approx_fstar_struct γ=1.77e-02 MSE_te=4.06e-32
+    J*=0.0000 J_oracle=0.0000 J_rkhs_nn=0.9114
+  [H1/3 SNR=   8] 开始六方法…
+  [H1/3 SNR=   8] MLD            完成  BER=0.000e+00     0.0s
+  [H1/3 SNR=   8] MMSE+LS        完成  BER=6.088e-02     0.1s  MC×5
+  [H1/3 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H1/3 SNR=   8] RKHS(z_rob)    完成  BER=5.100e-02   173.5s  n_center=1800 α=approx_hard_proj[mkl:0.26+bag1:0.20+nn:0.28+diag:0.26]_struct_hat_robust trSER=0.161
+  [H1/3 SNR=   8] CNN(盲)         完成  BER=1.153e-01    27.3s  trSER=0.062
+  [H1/3 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [H1/3 SNR=   8] RKHS Oracle    完成  BER=0.000e+00     3.0s  n_center=1800 approx_fstar_struct γ=1.43e-02 MSE_te=5.77e-32
+    J*=-0.0000 J_oracle=0.0000 J_rkhs_nn=0.5141
+  [H1/3 SNR=  10] 开始六方法…
+  [H1/3 SNR=  10] MLD            完成  BER=0.000e+00     0.0s
+  [H1/3 SNR=  10] MMSE+LS        完成  BER=3.090e-02     0.1s  MC×5
+  [H1/3 SNR=  10] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H1/3 SNR=  10] RKHS(z_rob)    完成  BER=2.167e-02    97.5s  n_center=1800 α=approx_hard_proj[mkl:0.02+bag1:0.32+nn:0.33+diag:0.33]_struct_hat_robust+stack2 trSER=0.062
+  [H1/3 SNR=  10] CNN(盲)         完成  BER=1.331e-01    25.9s  trSER=0.099
+  [H1/3 SNR=  10] Oracle        struct(H)+f* 拟合…
+  [H1/3 SNR=  10] RKHS Oracle    完成  BER=0.000e+00     3.0s  n_center=1800 approx_fstar_struct γ=1.13e-02 MSE_te=2.75e-26
+    J*=-0.0000 J_oracle=0.0000 J_rkhs_nn=0.2676
+  [H2/3 SNR=   0] 开始六方法…
+  [H2/3 SNR=   0] MLD            完成  BER=0.000e+00     0.0s
+  [H2/3 SNR=   0] MMSE+LS        完成  BER=2.738e-01     0.1s  MC×5
+  [H2/3 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H2/3 SNR=   0] RKHS(z_rob)    完成  BER=2.130e-01   119.6s  n_center=2000 α=approx_hard_proj[mkl:0.28+bag1:0.22+nn:0.21+diag:0.29]_struct_hat_robust trSER=0.631
+  [H2/3 SNR=   0] CNN(盲)         完成  BER=7.450e-02    33.9s  trSER=0.044
+  [H2/3 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [H2/3 SNR=   0] RKHS Oracle    完成  BER=0.000e+00     4.8s  n_center=2000 approx_fstar_struct γ=3.58e-02 MSE_te=3.92e-08
+    J*=0.0003 J_oracle=0.0003 J_rkhs_nn=1.7680
+  [H2/3 SNR=   2] 开始六方法…
+  [H2/3 SNR=   2] MLD            完成  BER=0.000e+00     0.0s
+  [H2/3 SNR=   2] MMSE+LS        完成  BER=2.183e-01     0.1s  MC×5
+  [H2/3 SNR=   2] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H2/3 SNR=   2] RKHS(z_rob)    完成  BER=1.621e-01   134.1s  n_center=2000 α=approx_hard_proj[mkl:0.25+bag1:0.10+nn:0.30+diag:0.35]_struct_hat_robust trSER=0.518
+  [H2/3 SNR=   2] CNN(盲)         完成  BER=1.122e-01    28.5s  trSER=0.059
+  [H2/3 SNR=   2] Oracle        struct(H)+f* 拟合…
+  [H2/3 SNR=   2] RKHS Oracle    完成  BER=0.000e+00     4.8s  n_center=2000 approx_fstar_struct γ=2.87e-02 MSE_te=3.12e-12
+    J*=0.0000 J_oracle=0.0000 J_rkhs_nn=1.4364
+  [H2/3 SNR=   4] 开始六方法…
+  [H2/3 SNR=   4] MLD            完成  BER=0.000e+00     0.0s
+  [H2/3 SNR=   4] MMSE+LS        完成  BER=1.560e-01     0.1s  MC×5
+  [H2/3 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H2/3 SNR=   4] RKHS(z_rob)    完成  BER=1.139e-01   159.2s  n_center=2000 α=approx_hard_proj[mkl:0.04+bag1:0.18+nn:0.38+diag:0.40]_struct_hat_robust trSER=0.398
+  [H2/3 SNR=   4] CNN(盲)         完成  BER=1.175e-01    28.0s  trSER=0.062
+  [H2/3 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [H2/3 SNR=   4] RKHS Oracle    完成  BER=0.000e+00     4.8s  n_center=2000 approx_fstar_struct γ=2.26e-02 MSE_te=3.79e-21
+    J*=0.0000 J_oracle=0.0000 J_rkhs_nn=1.0721
+  [H2/3 SNR=   6] 开始六方法…
+  [H2/3 SNR=   6] MLD            完成  BER=0.000e+00     0.0s
+  [H2/3 SNR=   6] MMSE+LS        完成  BER=1.113e-01     0.1s  MC×5
+  [H2/3 SNR=   6] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H2/3 SNR=   6] RKHS(z_rob)    完成  BER=7.167e-02    97.6s  n_center=2000 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.254
+  [H2/3 SNR=   6] CNN(盲)         完成  BER=1.131e-01    27.5s  trSER=0.061
+  [H2/3 SNR=   6] Oracle        struct(H)+f* 拟合…
+  [H2/3 SNR=   6] RKHS Oracle    完成  BER=0.000e+00     4.6s  n_center=2000 approx_fstar_struct γ=1.79e-02 MSE_te=1.63e-31
+    J*=0.0000 J_oracle=0.0000 J_rkhs_nn=0.6924
+  [H2/3 SNR=   8] 开始六方法…
+  [H2/3 SNR=   8] MLD            完成  BER=0.000e+00     0.0s
+  [H2/3 SNR=   8] MMSE+LS        完成  BER=4.977e-02     0.1s  MC×5
+  [H2/3 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H2/3 SNR=   8] RKHS(z_rob)    完成  BER=3.667e-02    88.5s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust+stack2 trSER=0.123
+  [H2/3 SNR=   8] CNN(盲)         完成  BER=1.189e-01    23.9s  trSER=0.070
+  [H2/3 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [H2/3 SNR=   8] RKHS Oracle    完成  BER=0.000e+00     2.9s  n_center=1800 approx_fstar_struct γ=1.43e-02 MSE_te=1.35e-30
+    J*=-0.0000 J_oracle=0.0000 J_rkhs_nn=0.3998
+  [H2/3 SNR=  10] 开始六方法…
+  [H2/3 SNR=  10] MLD            完成  BER=0.000e+00     0.0s
+  [H2/3 SNR=  10] MMSE+LS        完成  BER=2.207e-02     0.1s  MC×5
+  [H2/3 SNR=  10] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H2/3 SNR=  10] RKHS(z_rob)    完成  BER=1.100e-02    92.7s  n_center=1800 α=approx_hard_mkl+bag1_struct_hat_robust trSER=0.044
+  [H2/3 SNR=  10] CNN(盲)         完成  BER=1.033e-01    26.3s  trSER=0.056
+  [H2/3 SNR=  10] Oracle        struct(H)+f* 拟合…
+  [H2/3 SNR=  10] RKHS Oracle    完成  BER=0.000e+00     2.9s  n_center=1800 approx_fstar_struct γ=1.12e-02 MSE_te=1.69e-23
+    J*=-0.0000 J_oracle=0.0000 J_rkhs_nn=0.1359
+  [H3/3 SNR=   0] 开始六方法…
+  [H3/3 SNR=   0] MLD            完成  BER=0.000e+00     0.0s
+  [H3/3 SNR=   0] MMSE+LS        完成  BER=2.647e-01     0.1s  MC×5
+  [H3/3 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H3/3 SNR=   0] RKHS(z_rob)    完成  BER=1.923e-01   107.3s  n_center=2000 α=approx_hard_mkl+diag_struct_hat_robust trSER=0.536
+  [H3/3 SNR=   0] CNN(盲)         完成  BER=1.350e-01    24.3s  trSER=0.074
+  [H3/3 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [H3/3 SNR=   0] RKHS Oracle    完成  BER=0.000e+00     4.6s  n_center=2000 approx_fstar_struct γ=3.48e-02 MSE_te=4.48e-08
+    J*=0.0001 J_oracle=0.0001 J_rkhs_nn=1.6053
+  [H3/3 SNR=   2] 开始六方法…
+  [H3/3 SNR=   2] MLD            完成  BER=0.000e+00     0.0s
+  [H3/3 SNR=   2] MMSE+LS        完成  BER=1.975e-01     0.1s  MC×5
+  [H3/3 SNR=   2] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H3/3 SNR=   2] RKHS(z_rob)    完成  BER=1.522e-01    98.3s  n_center=2000 α=approx_hard_proj[mkl:0.28+bag1:0.23+nn:0.21+diag:0.28]_struct_hat_robust trSER=0.463
+  [H3/3 SNR=   2] CNN(盲)         完成  BER=9.608e-02    26.6s  trSER=0.049
+  [H3/3 SNR=   2] Oracle        struct(H)+f* 拟合…
+  [H3/3 SNR=   2] RKHS Oracle    完成  BER=0.000e+00     4.5s  n_center=2000 approx_fstar_struct γ=2.80e-02 MSE_te=7.58e-13
+    J*=0.0000 J_oracle=0.0000 J_rkhs_nn=1.3468
+  [H3/3 SNR=   4] 开始六方法…
+  [H3/3 SNR=   4] MLD            完成  BER=0.000e+00     0.0s
+  [H3/3 SNR=   4] MMSE+LS        完成  BER=1.504e-01     0.1s  MC×5
+  [H3/3 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H3/3 SNR=   4] RKHS(z_rob)    完成  BER=1.117e-01    85.6s  n_center=2000 α=approx_hard_proj[mkl:0.00+bag1:0.28+nn:0.39+diag:0.33]_struct_hat_robust trSER=0.346
+  [H3/3 SNR=   4] CNN(盲)         完成  BER=1.128e-01    25.1s  trSER=0.066
+  [H3/3 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [H3/3 SNR=   4] RKHS Oracle    完成  BER=0.000e+00     4.7s  n_center=2000 approx_fstar_struct γ=2.22e-02 MSE_te=3.60e-21
+    J*=0.0000 J_oracle=0.0000 J_rkhs_nn=1.0610
+  [H3/3 SNR=   6] 开始六方法…
+  [H3/3 SNR=   6] MLD            完成  BER=0.000e+00     0.0s
+  [H3/3 SNR=   6] MMSE+LS        完成  BER=9.497e-02     0.1s  MC×5
+  [H3/3 SNR=   6] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H3/3 SNR=   6] RKHS(z_rob)    完成  BER=6.975e-02   103.5s  n_center=2000 α=approx_hard_proj[mkl:0.00+bag1:0.29+nn:0.35+diag:0.36]_struct_hat_robust trSER=0.226
+  [H3/3 SNR=   6] CNN(盲)         完成  BER=1.282e-01    23.1s  trSER=0.086
+  [H3/3 SNR=   6] Oracle        struct(H)+f* 拟合…
+  [H3/3 SNR=   6] RKHS Oracle    完成  BER=0.000e+00     4.6s  n_center=2000 approx_fstar_struct γ=1.76e-02 MSE_te=2.39e-32
+    J*=-0.0000 J_oracle=0.0000 J_rkhs_nn=0.7135
+  [H3/3 SNR=   8] 开始六方法…
+  [H3/3 SNR=   8] MLD            完成  BER=0.000e+00     0.0s
+  [H3/3 SNR=   8] MMSE+LS        完成  BER=4.395e-02     0.1s  MC×5
+  [H3/3 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H3/3 SNR=   8] RKHS(z_rob)    完成  BER=3.692e-02   144.0s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust+stack2 trSER=0.113
+  [H3/3 SNR=   8] CNN(盲)         完成  BER=9.917e-02    27.7s  trSER=0.057
+  [H3/3 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [H3/3 SNR=   8] RKHS Oracle    完成  BER=0.000e+00     2.9s  n_center=1800 approx_fstar_struct γ=1.43e-02 MSE_te=1.62e-29
+    J*=-0.0000 J_oracle=0.0000 J_rkhs_nn=0.4211
+  [H3/3 SNR=  10] 开始六方法…
+  [H3/3 SNR=  10] MLD            完成  BER=0.000e+00     0.0s
+  [H3/3 SNR=  10] MMSE+LS        完成  BER=1.902e-02     0.1s  MC×5
+  [H3/3 SNR=  10] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [H3/3 SNR=  10] RKHS(z_rob)    完成  BER=1.450e-02    93.9s  n_center=1800 α=approx_hard_mkl+mkl_struct_hat_robust trSER=0.034
+  [H3/3 SNR=  10] CNN(盲)         完成  BER=1.000e-01    27.0s  trSER=0.056
+  [H3/3 SNR=  10] Oracle        struct(H)+f* 拟合…
+  [H3/3 SNR=  10] RKHS Oracle    完成  BER=0.000e+00     2.9s  n_center=1800 approx_fstar_struct γ=1.17e-02 MSE_te=9.94e-15
+    J*=-0.0000 J_oracle=0.0000 J_rkhs_nn=0.1560
+图1已保存: midterm_results/exp1_mld_baseline.png
+图2已保存: midterm_results/exp2_rkhs_approximation.png
+图3已保存: midterm_results/exp3_end_to_end.png
+
+实验完成！结果保存在: midterm_results
+(base) a1111@1111deMacBook-Pro RKHS优化问题 % 

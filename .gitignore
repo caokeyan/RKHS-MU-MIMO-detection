@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.mplconfig/
+.DS_Store
+.venv/
+venv/
+*.npz
+!midterm_results/*.png
+!midterm_results/*.log
+!midterm_results/*.txt
+!midterm_results/final_summary.npz
