@@ -215,7 +215,12 @@ def estimate_heff_per_sample(
     n0_hat = np.maximum(np.asarray(n0_hat, dtype=np.float64), 1e-12)
     se2 = n0_hat * float(K) / float(T)
     s = float(snr_db)
-    if s >= 10.0:
+    # 高 SNR：CSI 误差本身已小，过强加载会拖累相对 MMSE 的增益
+    if s >= 14.0:
+        se2 = se2 * 0.03
+    elif s >= 12.0:
+        se2 = se2 * 0.08
+    elif s >= 10.0:
         se2 = se2 * 0.15
     elif s >= 8.0:
         se2 = se2 * 0.4
@@ -808,13 +813,17 @@ class RKHSApproxMLDDetector:
             se2 = sigma_e2_pilot(self.n0_hat, self.T_pilot)
             # 高 SNR 信道误差已小，过强对角加载会伤充分统计 → 衰减 σ_e²
             s = float(snr_db)
-            if s >= 10.0:
+            if s >= 14.0:
+                se2 *= 0.03
+            elif s >= 12.0:
+                se2 *= 0.08
+            elif s >= 10.0:
                 se2 *= 0.15
             elif s >= 8.0:
                 se2 *= 0.4
             self.sigma_e2 = float(se2)
-            # 极高 SNR：若衰减后仍过大，关闭稳健（退回标准 GA(Ĥ)）
-            if s >= 12.0:
+            # ≥14 dB：关闭稳健加载，直接用 GA(Ĥ)，更接近 MMSE 工作点
+            if s >= 14.0:
                 self.robust_csi = False
             self.hy_hat_cache = precompute_mld_hy(self.H_hat)
 

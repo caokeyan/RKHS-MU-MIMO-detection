@@ -1,0 +1,244 @@
+% !TEX program = xelatex
+\documentclass[12pt,a4paper,openany]{ctexrep}
+
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{amsmath,amssymb,bm,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{cite}
+
+\onehalfspacing
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue}
+\captionsetup{font=small,labelfont=bf}
+\graphicspath{{figures/}}
+
+\title{\textbf{基于再生核希尔伯特空间的\\大规模 MU-MIMO 符号检测研究报告}}
+\author{课题组\quad RKHS 优化问题}
+\date{\today}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\noindent
+大规模多用户多输入多输出（MU-MIMO）系统中，基站需在多用户干扰与有限信道状态信息（CSI）条件下完成可靠符号检测。最大似然检测（MLD）在贝叶斯意义下最优，但其复杂度随用户数指数增长；线性最小均方误差（MMSE）检测可部署，但在低中信噪比与强干扰场景性能受限。深度学习检测器近年取得进展，却往往依赖大量标注、可解释性不足，且对 CSI 误差敏感。
+
+本报告研究一类以\textbf{再生核希尔伯特空间（RKHS）}为假设类、以\textbf{贝叶斯后验损失}为目标的检测框架。决策始终保持
+\[
+L(y)=K_\eta(\varphi(y),C)\alpha^\top,\qquad \hat X_1=\arg\max_a L_a(y)
+\]
+的核展开形式。针对可部署约束（无真信道 $H$、无真后验 $f^*$ 监督），提出稳健结构化特征 $z_{\mathrm{rob}}(y;\hat H)$，并在 Adaptive-MKL、核内神经网络系数生成、验证集聚合与可选二阶堆叠等模块上强化表达能力。同时，以真 $H$ 的 struct 特征拟合 $f^*$ 构造 RKHS Oracle，实证说明：在合适核空间中可任意逼近贝叶斯后验。
+
+在 $M=128$、$K=40$、16/64-QAM、仅检测期望用户 $X_1$ 的设定下，实验表明：可部署 RKHS 相对 MMSE+LS 在 16-QAM、0--10\,dB 降低误比特率约 19\%--35\%；在多种前端失真下相对增益可进一步扩大；Oracle 与 MLD 高度一致。报告系统阐述问题背景、研究现状、理论基础、方法细节、实现要点与实验结果，并讨论局限与后续方向。
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+\input{ch01_intro}
+\input{ch02_survey}
+\input{ch03_model}
+\input{ch04_theory}
+\input{ch05_method}
+\input{ch09_deriv}
+\input{ch06_impl}
+\input{ch07_exp}
+\input{ch08_discuss}
+
+\begin{thebibliography}{99}
+
+\bibitem{tse2005}
+D.~Tse and P.~Viswanath,
+\textit{Fundamentals of Wireless Communication}.
+Cambridge University Press, 2005.
+
+\bibitem{marzetta2010}
+T.~L.~Marzetta,
+``Noncooperative cellular wireless with unlimited numbers of base station antennas,''
+\textit{IEEE Trans. Wireless Commun.}, 2010.
+
+\bibitem{verdú1998}
+S.~Verdú,
+\textit{Multiuser Detection}.
+Cambridge University Press, 1998.
+
+\bibitem{kay1993}
+S.~M.~Kay,
+\textit{Fundamentals of Statistical Signal Processing: Estimation Theory}.
+Prentice Hall, 1993.
+
+\bibitem{hochwald2003}
+B.~M.~Hochwald and S.~ten Brink,
+``Achieving near-capacity on a multiple-antenna channel,''
+\textit{IEEE Trans. Commun.}, 2003.
+
+\bibitem{studer2011}
+C.~Studer and H.~B{\"o}lcskei,
+``Soft--input soft--output single tree-search sphere decoding,''
+\textit{IEEE Trans. Inf. Theory}, 2011.
+
+\bibitem{samuel2019}
+N.~Samuel, T.~Diskin, and A.~Wiesel,
+``Learning to detect,''
+\textit{IEEE Trans. Signal Process.}, 2019.
+
+\bibitem{he2018}
+H.~He, C.~Wen, S.~Jin, and G.~Y.~Li,
+``A model-driven deep learning network for MIMO detection,''
+\textit{IEEE GlobalSIP}, 2018.
+
+\bibitem{khani2020}
+M.~Khani, M.~Alizadeh, J.~Hoydis, and P.~Fleming,
+``Adaptive neural signal detection for massive MIMO,''
+\textit{IEEE Trans. Wireless Commun.}, 2020.
+
+\bibitem{schafer2006}
+B.~Sch{\"o}lkopf and A.~J.~Smola,
+\textit{Learning with Kernels}.
+MIT Press, 2002.
+
+\bibitem{aronszajn1950}
+N.~Aronszajn,
+``Theory of reproducing kernels,''
+\textit{Trans. Amer. Math. Soc.}, 1950.
+
+\bibitem{micchelli2005}
+C.~A.~Micchelli and M.~Pontil,
+``Learning the kernel function via regularization,''
+\textit{JMLR}, 2005.
+
+\bibitem{bach2004}
+F.~R.~Bach, G.~R.~G.~Lanckriet, and M.~I.~Jordan,
+``Multiple kernel learning, conic duality, and the SMO algorithm,''
+\textit{ICML}, 2004.
+
+\bibitem{cortes2009}
+C.~Cortes, M.~Mohri, and A.~Rostamizadeh,
+``Learning non-linear combinations of kernels,''
+\textit{NIPS}, 2009.
+
+\bibitem{vapnik1998}
+V.~N.~Vapnik,
+\textit{Statistical Learning Theory}.
+Wiley, 1998.
+
+\bibitem{steinwart2008}
+I.~Steinwart and A.~Christmann,
+\textit{Support Vector Machines}.
+Springer, 2008.
+
+\bibitem{cover1965}
+T.~M.~Cover,
+``Geometrical and statistical properties of systems of linear inequalities with applications in pattern recognition,''
+\textit{IEEE Trans. Electron. Comput.}, 1965.
+
+\bibitem{biglieri2007}
+E.~Biglieri et~al.,
+\textit{MIMO Wireless Communications}.
+Cambridge University Press, 2007.
+
+\bibitem{hassibi2005}
+B.~Hassibi and H.~Vikalo,
+``On the sphere-decoding algorithm I,''
+\textit{IEEE Trans. Signal Process.}, 2005.
+
+\bibitem{larsson2014}
+E.~G.~Larsson, O.~Edfors, F.~Tufvesson, and T.~L.~Marzetta,
+``Massive MIMO for next generation wireless systems,''
+\textit{IEEE Commun. Mag.}, 2014.
+
+\bibitem{bjornson2017}
+E.~Bj{\"o}rnson, J.~Hoydis, and L.~Sanguinetti,
+``Massive MIMO networks: Spectral, energy, and hardware efficiency,''
+\textit{Found. Trends Commun. Inf. Theory}, 2017.
+
+\bibitem{hoydis2013}
+J.~Hoydis, S.~ten Brink, and M.~Debbah,
+``Massive MIMO in the UL/DL of cellular networks: How many antennas do we need?''
+\textit{IEEE J. Sel. Areas Commun.}, 2013.
+
+\bibitem{o2017}
+T.~J.~O'Shea and J.~Hoydis,
+``An introduction to deep learning for the physical layer,''
+\textit{IEEE Trans. Cogn. Commun. Netw.}, 2017.
+
+\bibitem{ye2018}
+H.~Ye, G.~Y.~Li, and B.-H.~Juang,
+``Power of deep learning for channel estimation and signal detection in OFDM systems,''
+\textit{IEEE Wireless Commun. Lett.}, 2018.
+
+\bibitem{goldsmith2005}
+A.~Goldsmith,
+\textit{Wireless Communications}.
+Cambridge University Press, 2005.
+
+\bibitem{proakis2008}
+J.~G.~Proakis and M.~Salehi,
+\textit{Digital Communications}, 5th ed.
+McGraw-Hill, 2008.
+
+\bibitem{bishop2006}
+C.~M.~Bishop,
+\textit{Pattern Recognition and Machine Learning}.
+Springer, 2006.
+
+\bibitem{murphy2012}
+K.~P.~Murphy,
+\textit{Machine Learning: A Probabilistic Perspective}.
+MIT Press, 2012.
+
+\bibitem{shawe2004}
+J.~Shawe-Taylor and N.~Cristianini,
+\textit{Kernel Methods for Pattern Analysis}.
+Cambridge University Press, 2004.
+
+\bibitem{rakotomamonjy2008}
+A.~Rakotomamonjy, F.~Bach, S.~Canu, and Y.~Grandvalet,
+``SimpleMKL,''
+\textit{JMLR}, 2008.
+
+\end{thebibliography}
+
+\appendix
+\chapter{符号表与默认超参}
+\section{主要符号}
+\begin{tabular}{ll}
+\hline
+符号 & 含义 \\
+\hline
+$M,K$ & 天线数、用户/流数（本报告 $128,40$） \\
+$Y,H,X,N$ & 接收、信道、发射、噪声 \\
+$X_1,X_I$ & 期望用户、干扰用户 \\
+$f_a^*$ & 贝叶斯后验 $\mathbb{P}(X_1=a\mid Y)$ \\
+$J(f)$ & 后验损失 + RKHS 正则 \\
+$\varphi,z_{\mathrm{rob}}$ & 特征映射 / 稳健充分统计 \\
+$K_\eta,\alpha,\eta$ & 组合核、系数、核权重 \\
+$\hat H,\sigma_e^2$ & CSI 估计、误差方差 \\
+\hline
+\end{tabular}
+
+\section{默认实验超参（中期）}
+\begin{itemize}
+  \item $n_{\mathrm{train}}=2000$，$n_{\mathrm{test}}=3000$，$n_{\mathrm{chan}}=3$
+  \item SNR：$\{0,2,4,6,8,10\}$\,dB
+  \item 可部署：\texttt{struct\_hat} + \texttt{hard} + Adaptive-MKL/NN/聚合/堆叠
+  \item Oracle：\texttt{struct} + \texttt{fstar}
+\end{itemize}
+
+\chapter{代码与复现}
+核心入口：\texttt{midterm\_final.py}、\texttt{rkhs\_mld\_approx.py}、\texttt{test\_oracle\_rkhs.py}。\\
+仓库：\url{https://github.com/caokeyan/RKHS-MU-MIMO-detection}
+
+\end{document}

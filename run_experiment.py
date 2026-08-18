@@ -94,6 +94,8 @@ def run_mmse_ls_bit_ber_mc(
     n_trials: int = 1,
     mapping: str = "gray",
     use_true_n0: bool = False,
+    nonlin_mode: str = "none",
+    nonlin_beta: float = 0.35,
 ) -> float:
     """
     论文式 Monte Carlo（与 run_experiment 主循环一致）：
@@ -103,7 +105,14 @@ def run_mmse_ls_bit_ber_mc(
         raise ValueError("n_trials 须 >= 1")
     acc = 0.0
     for _ in range(n_trials):
-        y_te, _, s1_te = generate_samples(n_test, H_eff, snr_db, rng)
+        y_te, _, s1_te = generate_samples(
+            n_test,
+            H_eff,
+            snr_db,
+            rng,
+            nonlin_mode=nonlin_mode,
+            nonlin_beta=nonlin_beta,
+        )
         acc += run_mmse_ls_bit_ber(
             y_te,
             s1_te,

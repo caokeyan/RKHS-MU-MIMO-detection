@@ -1,0 +1,177 @@
+\chapter{提出的方法}
+\label{ch:method}
+
+本章把第\ref{ch:theory}章的理论装配为两条并行、决策形式相同的流水线：
+\begin{itemize}
+  \item \textbf{可部署主线}：信息集为 $(Y,\hat H)$，监督为硬标签 $X_1$，特征为 $z_{\mathrm{rob}}$；
+  \item \textbf{Oracle 上界}：信息集含真 $H$，监督为真后验 $f^*$，特征为 $z(y;H)$。
+\end{itemize}
+二者均保持
+\[
+L=K_\eta(\varphi,C)\alpha^\top,\qquad \hat X_1=\arg\max_a L_a,
+\]
+从而“可逼近性”与“可部署性”可在同一数学对象上对照。
+
+\section{总体框架}
+
+可部署路径：
+\begin{equation}
+(Y,\hat H)
+\;\xrightarrow{R_{\mathrm{rob}}}\;
+z_{\mathrm{rob}}(Y;\hat H)
+\;\xrightarrow{\mathrm{Adaptive\text{-}MKL\,/\,NN\,/\,聚合\,/\,堆叠}}\;
+L
+\;\xrightarrow{\arg\max}\;
+\hat X_1.
+\label{eq:pipeline}
+\end{equation}
+训练最小化经验贝叶斯后验损失（hard 交叉熵 + RKHS 正则）；测试期只需新的 $Y$ 与同一块的 $\hat H$。Oracle 将 $\hat H\mapsto H$、$\mathrm{hard}\mapsto f^*$，并通常采用闭式多核拟合，而不启用 NN/堆叠等为 hard 路径设计的增强。
+
+\section{步骤一：稳健结构化特征 $z_{\mathrm{rob}}$}
+
+\subsection{构造}
+由导频 LS 得 $(\hat H,\hat N_0)$，误差方差 $\sigma_e^2$ 取式\eqref{eq:se2}。定义
+\begin{equation}
+R_{\mathrm{rob}}(\hat H)
+=
+\hat N_0 I
++ E_s\,\hat H_I\hat H_I^H
++ (K-1)\sigma_e^2 I.
+\label{eq:Rrob}
+\end{equation}
+以期望用户列 $\hat h_1$ 与 $R_{\mathrm{rob}}$ 做高斯干扰近似，得到 $|\mathcal{A}|$ 维对数软分（16-QAM 时 $|\mathcal{A}|=16$，64-QAM 时 $|\mathcal{A}|=64$），再逐样本减最大值：
+\begin{equation}
+\varphi(y)=z_{\mathrm{rob}}(y;\hat H)-\max_a z_{\mathrm{rob},a}(y;\hat H)\in\mathbb{R}^{|\mathcal{A}|}.
+\label{eq:zrob-feat}
+\end{equation}
+高 SNR 时信道估计误差已小，过强对角加载会损伤充分统计：实现上将 $\sigma_e^2$ 随 SNR 衰减，并在 $\mathrm{SNR}\ge 14\,\mathrm{dB}$ 时关闭稳健加载（退回基于 $\hat H$ 的标准 GA 软分）。
+
+\subsection{设计意图}
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{降维并对齐假设检验}：从 $\mathbb{C}^{M}$ 压到 $|\mathcal{A}|$ 维，使核回归良置（第\ref{ch:theory}章）；
+  \item \textbf{承认 CSI 误差}：加载项抬高干扰协方差特征值下界，避免把 $\hat H$ 的虚假结构当真；
+  \item \textbf{保留线性--高斯可解释性}：白化/匹配来自经典估计，非线性留给后续 RKHS。
+\end{enumerate}
+
+\subsection{特征模式对照}
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+模式 & 信道 & 特征 $\varphi$ & 角色 \\
+\midrule
+\texttt{blind} & 不用 / 弱用 & $[\Re y;\Im y]$ & 反例：高维难逼近 \\
+\texttt{struct} & 真 $H$ & $z(y;H,N_0)$ & Oracle 上界 \\
+\texttt{struct\_hat} & $\hat H$ & $z_{\mathrm{rob}}(y;\hat H)$ & \textbf{可部署默认} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{步骤二：在 $\varphi$ 上的 Adaptive-MKL}
+
+对训练特征做标准化，按理论锚点取带宽 $\gamma$ 与正则 $\lambda$，构造多尺度 RBF 基核 $\{k_m\}$。Adaptive-MKL 学习凸组合权重 $\eta$ 与系数；推理阶段可保留分核 $\alpha_m$，logits 为各核贡献之和。
+
+\textbf{SNR 自适应的实现策略：}低中 SNR 使用加密比例组（RICH），以增大表达；$\mathrm{SNR}\ge 10\,\mathrm{dB}$ 时改用较稳的标准基核组并限制过长 L-BFGS，防止高 SNR 数值崩溃。这体现“理论要表达力、工程要稳定”的折中。
+
+\section{步骤三：损失函数——hard 为主}
+
+可部署默认最小化
+\begin{equation}
+\widehat J_{\mathrm{hard}}
+=\frac1n\sum_{i=1}^n\Big[
+-\log\frac{e^{L_{X_1^{(i)}}(\varphi_i)}}{\sum_b e^{L_b(\varphi_i)}}
+\Big]
++\lambda\|\alpha\|_{K_\eta}^2.
+\end{equation}
+即经验版 $J(f)$。可选 plugin 将 $\hat p=\mathrm{softmax}(z_{\mathrm{rob}})$ 作软教师：
+\begin{equation}
+J_{\mathrm{plugin}}=w\,\mathrm{CE}(\hat p,f)+(1-w)J_{\mathrm{hard}}+\lambda\|f\|_{\mathcal{H}}^2.
+\end{equation}
+因 $\hat p$ 含 GA 误差与 CSI 误差，\textbf{重 plugin 常损害 BER}；默认 $w$ 取小或为 0。Oracle 则直接拟合 $\log f^*$（\texttt{fstar}），不走 hard 的 NN/聚合增强。
+
+\section{步骤四：同核空间内的表达增强}
+
+以下模块只服务可部署 hard 路径，且\textbf{不改变} $L=K_\eta\alpha^\top$ 的决策范式。
+
+\subsection{核内 NN}
+用小型超网络生成 $\alpha$，仍在同一 $K_\eta$ 上用 $J$ 训练。作用是改善系数优化，而非替换核展开。
+
+\subsection{验证集聚合}
+在同一 $K_\eta$ 上得到多个候选（主 MKL、多种子 bag、NN、对角初始化等）。按验证 $J$ 加权融合 logits，再投影回单份 $\alpha$：
+\begin{equation}
+\min_{\alpha}\|K\alpha^\top-L_{\mathrm{agg}}\|_F^2+\lambda\|\alpha\|_{K}^2.
+\end{equation}
+部署期仍只存一份模型。若聚合未优于最优单模型，则回退单模型。
+
+\subsection{条件二阶堆叠}
+一阶段得到 $L_1$ 后，令
+\begin{equation}
+\phi_2=\big[z_{\mathrm{rob}},\,\mathrm{softmax}(L_1)\big],
+\end{equation}
+再训二阶段 RKHS。仅当 $\mathrm{SNR}<12\,\mathrm{dB}$ 且验证 BER 相对一阶段\textbf{明确改善}时启用；高 SNR 关闭堆叠，以避免稀有错误被二阶段过拟合。
+
+\section{RKHS Oracle 方法}
+
+\begin{equation}
+\varphi=z(y;H,N_0),\quad
+\mathrm{target}=f^*,\quad
+\mathrm{solver}=\text{多核闭式/岭回归型拟合 }\log f^*.
+\end{equation}
+若 Oracle 的 BER、$J$、$\mathrm{MSE}(f,f^*)$ 贴近 MLD，则实证第\ref{ch:theory}章的可逼近性命题。此时与可部署主线的差距应主要解释为：$\hat H\neq H$ 导致的特征偏移 + 无 $f^*$ 监督，而不是“核不能表达后验”。
+
+\section{方法层面的明确取舍}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+做 & 不做（非主线） \\
+\midrule
+$z_{\mathrm{rob}}$ + hard + Adaptive-MKL & 加长导频死磕完美 CSI \\
+同核空间 NN / 聚合 / 条件堆叠 & 以 PIC/MMSE residual 替换主决策 \\
+Oracle 用 struct+$f^*$ 证逼近 & 用真 $H$/$f^*$ 冒充可部署结果 \\
+以打过 MMSE 为工程目标 & 仅优化与 MLD 的中间 MSE 而不报 BER \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{算法流程}
+
+\begin{algorithm}[H]
+\caption{可部署 RKHS 检测器：训练}
+\begin{algorithmic}[1]
+\Require $\{(y_i,X_1^{(i)})\}_{i=1}^n$，块级或样本级 $\hat H$，SNR
+\State 由导频统计计算 $\sigma_e^2$；$\varphi_i\gets z_{\mathrm{rob}}(y_i;\hat H)$
+\State 选取中心 $C\subseteq\{\varphi_i\}$；标准化；定 $\gamma,\lambda$；建基核
+\State Adaptive-MKL 得 $\eta,\alpha$（可选 $\alpha_m$）
+\State 生成 NN / bag / 对角等候选；验证集按 $J$ 聚合并投影
+\State \textbf{if} 堆叠使验证 BER 下降 \textbf{then} 训练二阶段并启用
+\State \Return 模型参数（含标准化与是否堆叠标志）
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{可部署 RKHS 检测器：测试}
+\begin{algorithmic}[1]
+\Require $y$，块 $\hat H$，训练模型
+\State $\varphi\gets z_{\mathrm{rob}}(y;\hat H)$（同一加载与标准化）
+\State 若启用堆叠：先算 $L_1$，再在 $\phi_2$ 上算 $L$；否则 $L=K_\eta(\varphi,C)\alpha^\top$
+\State \Return $\hat X_1=\arg\max_a L_a$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{RKHS Oracle（上界）}
+\begin{algorithmic}[1]
+\Require $\{(y_i,f^*(y_i))\}$，真 $H,N_0$
+\State $\varphi_i\gets z(y_i;H,N_0)$；建 $K_\eta$；闭式拟合 $\log f^*$
+\State 测试：$L(y)=K_\eta(\varphi(y),C)\alpha^\top$，$\hat X_1=\arg\max L$
+\end{algorithmic}
+\end{algorithm}
+
+\section{小结}
+
+方法的一句话概括：
+\begin{quote}
+用稳健充分统计把问题放进合适坐标，在 RKHS 中最小化贝叶斯后验损失；\\
+能部署时只用 $\hat H$ 与 hard，要论证逼近时才用真 $H$ 与 $f^*$。
+\end{quote}
+下一章对应到代码模块与数值实现要点。

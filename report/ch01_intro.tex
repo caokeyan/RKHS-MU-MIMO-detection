@@ -1,0 +1,120 @@
+\chapter{绪论：问题背景与研究动机}
+
+\section{从多用户接入到符号检测}
+
+无线通信的核心任务之一，是在噪声与干扰下从接收波形中恢复发射端所传的数字符号。对单用户加性高斯白噪声（AWGN）信道，匹配滤波加硬判决在充分统计意义下已是最优；一旦多个用户在同一时频资源上叠加——无论是码分多址、OFDMA 上行还是空间复用 MIMO——接收机面对的就是经典的\textbf{多用户检测（multiuser detection）}问题\cite{verdú1998,tse2005}：需要在多址干扰（MAI）与噪声并存时，推断一个或多个用户的符号。
+
+进入 4G/5G 时代，基站侧大规模天线阵列使频谱效率显著提升\cite{marzetta2010,larsson2014,bjornson2017}。上行多用户 MIMO（MU-MIMO）中，$K$ 个用户同时向配备 $M$ 根天线的基站发射，基带等价模型通常写为
+\begin{equation}
+\mathbf{y}=\mathbf{H}\mathbf{x}+\mathbf{n},
+\label{eq:mimo-basic}
+\end{equation}
+其中 $\mathbf{y}\in\mathbb{C}^{M}$ 为接收向量，$\mathbf{H}\in\mathbb{C}^{M\times K}$ 为信道矩阵，$\mathbf{x}=(x_1,\ldots,x_K)^\top$ 各分量取自有限星座 $\mathcal{A}$（如 QPSK、16-QAM），$\mathbf{n}$ 为圆对称复高斯噪声。\textbf{符号检测}即：在已知或估计得到的 $\mathbf{H}$ 下，由 $\mathbf{y}$ 给出 $\mathbf{x}$ 的硬判决或软信息（LLR），供后续译码使用。
+
+检测问题的难度由三方面共同决定：
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{维数}：$K$ 增大使联合假设空间 $|\mathcal{A}|^K$ 指数膨胀；
+  \item \textbf{几何}：$\mathbf{H}$ 的条件数、用户相关性决定干扰可分程度；
+  \item \textbf{信息}：信道状态信息（CSI）是否完美、噪声与干扰统计是否准确。
+\end{enumerate}
+当 $M\gg K$ 且信道近似正交时，简单线性接收机已接近最优\cite{hoydis2013}；但当 $K/M$ 不可忽略、SNR 处于低中区间、或 CSI 存在误差时，线性方法与最优检测之间仍存在可观间隙——这也是本报告关注 $M=128$、$K=40$、0--10\,dB 设定的原因。
+
+\section{信号检测的基本模型分层}
+
+为便于后文对照，将常见检测模型按“观测--假设--准则”分层简述。
+
+\subsection{假设检验视角}
+给定 $\mathbf{H}$（或其后验），检测是离散参数的假设检验：每个候选 $\mathbf{x}\in\mathcal{A}^K$ 对应一个均值 $\mathbf{H}\mathbf{x}$。最大似然（ML）准则为
+\begin{equation}
+\hat{\mathbf{x}}_{\mathrm{ML}}
+=\arg\min_{\mathbf{x}\in\mathcal{A}^K}\|\mathbf{y}-\mathbf{H}\mathbf{x}\|^2.
+\label{eq:ml}
+\end{equation}
+在均匀先验下 ML 与最大后验（MAP）一致。若只关心某一用户 $x_1$，则最优是对联合后验做\textbf{边际化}：
+\begin{equation}
+\hat x_1^{\mathrm{MAP}}
+=\arg\max_{a\in\mathcal{A}}
+\sum_{\mathbf{x}_{2:K}\in\mathcal{A}^{K-1}}
+\mathbb{P}(\mathbf{x}=(a,\mathbf{x}_{2:K})\mid\mathbf{y}),
+\end{equation}
+其计算同样涉及指数级求和，是“只检单用户”时的贝叶斯金标准。
+
+\subsection{线性模型族}
+将 $\mathbf{x}$ 暂视为连续变量，可得到闭式线性估计再量化到星座：
+\begin{itemize}
+  \item \textbf{匹配滤波（MF）}：$\hat{\mathbf{x}}\propto \mathbf{H}^H\mathbf{y}$，忽略用户间干扰；
+  \item \textbf{迫零（ZF）}：$\hat{\mathbf{x}}=(\mathbf{H}^H\mathbf{H})^{-1}\mathbf{H}^H\mathbf{y}$，消除干扰但放大噪声；
+  \item \textbf{线性 MMSE}：
+  \begin{equation}
+  \hat{\mathbf{x}}_{\mathrm{MMSE}}
+  =\mathbf{H}^H\big(\mathbf{H}\mathbf{H}^H+N_0\mathbf{I}\big)^{-1}\mathbf{y},
+  \end{equation}
+  在均方误差意义下最优的线性估计，并可理解为对干扰加噪声的折中加载\cite{kay1993,tse2005}。
+\end{itemize}
+工程上常配合导频得到 $\hat{\mathbf{H}}$，即本报告基线 \textbf{MMSE+LS}。线性族复杂度约为矩阵求逆量级，可实时部署，但在强干扰/低 SNR 下 BER 距 ML 较远。
+
+\subsection{非线性与搜索类模型}
+\begin{itemize}
+  \item \textbf{串行/并行干扰消除（SIC/PIC）}：用已检符号重构干扰并相减，可与排序、软估计结合；
+  \item \textbf{球形译码（Sphere Decoding）}：在半径约束内搜索靠近 $\mathbf{y}$ 的格点，逼近 ML，但高维时节点访问量仍可能指数增长\cite{hassibi2005,studer2011}，大规模配置下常被视为难以直接部署\cite{larsson2014}；
+  \item \textbf{格基约减 + 线性均衡}：改善信道基底后再做 ZF/MMSE，属于性能--复杂度折中。
+\end{itemize}
+此外，近似消息传递（AMP/OAMP 等）在大系统极限下有严密分析，并常被深度学习展开\cite{he2018}。这类方法依赖信道与先验结构假设，本项目未以其为主线，但后文稳健充分统计中的高斯干扰近似与之精神相近。
+
+\subsection{学习型检测模型}
+近年来，深度网络被用于直接学习 $\mathbf{y}\mapsto\mathbf{x}$ 或算法展开\cite{samuel2019,o2017,khani2020}。其模型可概括为：用参数函数 $f_\theta$ 近似 MAP/迭代接收机映射，用交叉熵或均方损失在仿真数据上训练。优点是表达力强；挑战是可解释性、CSI 失配下的稳健性，以及与通信最优准则的对齐程度。本报告以 CNN 作为该类基线之一，而主方法采用\textbf{保留核决策形式}的 RKHS 学习，以便与贝叶斯后验损失严格对应。
+
+\section{问题背景：性能、复杂度与 CSI 三重张力}
+
+综合上述模型，当代上行 MU-MIMO 检测处在三重张力之中：
+
+\paragraph{（1）最优性 vs 复杂度}
+ML/MAP 与精确边际化在星座离散约束下最优，但复杂度随 $K$ 与调制阶数指数上升；球形译码等可降低平均复杂度，却难以保证最坏情况实时性。因此，可部署接收机长期以线性 MMSE 及其迭代变形为主。
+
+\paragraph{（2）天线数优势 vs 负荷比}
+大规模 MIMO 的“信道硬化、渐近正交”论证的是 $M/K\to\infty$ 时线性接收足够好\cite{marzetta2010,hoydis2013}。当 $K$ 与 $M$ 同量级（本报告 $40/128$）或工作在低中 SNR 时，线性方法留有改进空间——文献亦指出天线--用户比较低时经典检测性能明显恶化，从而激发学习检测等研究\cite{khani2020}。
+
+\paragraph{（3）完美 CSI 假设 vs 可部署估计}
+多数检测推导默认 $\mathbf{H}$ 已知。实际中 $\mathbf{H}$ 由上行导频估计，存在噪声、污染与校准误差\cite{bjornson2017}。把 $\hat{\mathbf{H}}$ 直接代入 ML/MMSE 公式，等价于错误指定模型：高 SNR 下估计误差会被放大，表现为“越信噪比越高越脆弱”。因此，任何宣称可上线的学习检测，都必须明确训练/测试期可用的信息集。
+
+本报告正是在这三重张力下选题：\textbf{不追求联合 ML 搜索}，而追求在可部署信息集上，用有理论结构的函数类逼近单用户贝叶斯最优，并尽量超过 MMSE+LS。
+
+\section{本项目的问题设定（方案 A）}
+
+我们采用\textbf{方案 A}：不联合恢复全部 $K$ 个符号，只检测期望用户 $x_1\in\mathcal{A}$，其余用户 $\mathbf{x}_I=(x_2,\ldots,x_K)$ 视为干扰。该设定的背景含义是：
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{业务不对称}：调度用户、测量用户或某一逻辑流的数据才是当前关心对象；
+  \item \textbf{复杂度接口}：把 $|\mathcal{A}|^K$ 联合问题降为“干扰环境下的 $|\mathcal{A}|$ 元检测”，使核方法/学习方法输入规模可控；
+  \item \textbf{最优准则清晰}：贝叶斯最优由后验
+  \[
+  f_a^*(\mathbf{y})=\mathbb{P}(x_1=a\mid\mathbf{y})
+  \]
+  的最大元给出；学习目标可直接取后验交叉熵型损失，而不是间接模仿某一线性接收机残差。
+\end{enumerate}
+精确 $f_a^*$ 需对 $\mathbf{x}_I$ 边际化；实践中可用蒙特卡洛或\textbf{高斯干扰近似（GA）}得到软分，后者并构成本方法结构化特征的物理来源。
+
+仿真默认：$M=128$，$K=40$，方形 QAM（主结果 16-QAM，扩展含 64-QAM），$Y=H_{\mathrm{eff}}X+N$ 的块衰落 Rayleigh 等效信道；指标为 Gray 标注下期望用户的 bit BER。
+
+\section{可部署约束与 Oracle 的分工}
+
+\textbf{可部署主线}要求：
+\begin{enumerate}[leftmargin=2em]
+  \item 测试期不使用真 $H$，只使用导频 LS 的 $\hat H$ 与 $\hat N_0$；
+  \item 不使用真后验 $f^*$ 作监督（可用仿真得到的真实符号 $x_1$ 作硬标签，对应离线有监督训练）；
+  \item 主目标是降低相对 MMSE+LS 的 BER，而非仅拟合某一中间统计量。
+\end{enumerate}
+\textbf{RKHS Oracle}则故意使用真 $H$ 与真 $f^*$，用于检验：在合适特征坐标上，再生核希尔伯特空间是否足以逼近贝叶斯后验（逼近 MLD）。二者决策形式相同，信息集不同，避免把“上界实验”与“上线方案”混为一谈。
+
+\section{方法路线预告：为何是 RKHS}
+
+在明确检测模型与信息约束后，本工作选择 RKHS 作为假设类\cite{aronszajn1950,schafer2006,steinwart2008}：表示定理保证解为有限核展开；通用核提供逼近能力；正则项 $\|f\|_{\mathcal{H}}^2$ 与泛化分析清楚。关键并非“用核直接分类原始 $\mathbf{y}$”，而是先构造与 GA-MLD 对齐的充分统计特征（可部署时为稳健的 $z_{\mathrm{rob}}(\hat H)$），再在该空间上最小化贝叶斯后验损失
+\begin{equation}
+J(f)=\mathbb{E}\Big[-\log\frac{f_{x_1}(Y)}{\sum_b f_b(Y)}\Big]+\lambda\|f\|_{\mathcal{H}}^2.
+\end{equation}
+这一“\textbf{通信模型启发的特征 + 核空间中的贝叶斯风险最小化}”构成后续章节的主线。
+
+\section{研究目标与报告结构}
+
+\noindent\textbf{目标：}在 $128\times40$、16-QAM、只检 $x_1$ 设定下，得到可部署 RKHS 检测器，使其 BER 显著优于 MMSE+LS；并用 Oracle 验证 struct 坐标上 RKHS 对 $f^*$ 的可逼近性。
+
+\noindent\textbf{结构：}第\ref{ch:survey}章综述研究现状；第\ref{ch:model}章形式化系统与最优检测；第\ref{ch:theory}章给 RKHS/MKL 理论；第\ref{ch:method}章给方法；第\ref{ch:impl}章给实现；第\ref{ch:exp}章给实验；第\ref{ch:discuss}章给讨论与结论。

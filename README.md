@@ -1,12 +1,14 @@
 # RKHS MU-MIMO 检测（方案 A：只检 $X_1$）
 
-可部署设定下，用 RKHS / Adaptive-MKL 最小化贝叶斯后验损失，在 **$128\times 40$、16-QAM** 上尽量超过 MMSE+LS。
+可部署设定下，用 RKHS / Adaptive-MKL 最小化贝叶斯后验损失，在 **$128\times 40$、16/64-QAM** 上尽量超过 MMSE+LS。
 
 ## 问题设定
 
-- 模型：$Y = HX + N$，用户数 $K=40$，天线 $M=128$，调制 16-QAM
-- 只检测期望用户符号 $X_1\in\mathcal{A}$（$|\mathcal{A}|=16$）
+- 模型：$Y = HX + N$，用户数 $K=40$，天线 $M=128$，调制 16-QAM（可 `set_modulation(64)`）
+- 只检测期望用户符号 $X_1\in\mathcal{A}$（$|\mathcal{A}|\in\{16,64\}$）
 - **部署约束**：不用真 $H$、不用真后验 $f^*$ 作监督；可用导频 LS 得到的 $\hat H$
+- 扩展实验：`python run_extended_exp.py --mod-order 16 --only gallery`；`--mod-order 64 --only qam64`
+- 结果：`extended_results/qam16/`、`extended_results/qam64/`
 
 目标函数：
 
@@ -26,7 +28,7 @@ $$
 $$
 (Y,\hat H)
 \;\xrightarrow{R_{\mathrm{rob}}}\;
-z_{\mathrm{rob}}(Y;\hat H)\in\mathbb{R}^{16}
+z_{\mathrm{rob}}(Y;\hat H)\in\mathbb{R}^{|\mathcal{A}|}
 \;\xrightarrow{\text{Adaptive-MKL / NN / 聚合 / 可选堆叠}}\;
 \hat X_1
 $$

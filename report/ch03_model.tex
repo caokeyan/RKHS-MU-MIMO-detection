@@ -1,0 +1,123 @@
+\chapter{系统模型与最优检测}
+\label{ch:model}
+
+本章给出上行 MU-MIMO 的观测与检测模型，并专门澄清：\textbf{线性与非线性在本问题中都可能存在}——前者主要体现在观测方程与线性接收机，后者主要体现在星座约束下的最优判决以及各类非线性接收机。二者不是互相否定，而是不同层次、不同工作条件下的可选形态。
+
+\section{观测方程：对连续符号是线性的}
+
+窄带块衰落上行 MU-MIMO 中，基站天线数 $M=128$，并发流数 $K=40$。等效基带模型为
+\begin{equation}
+Y = H_{\mathrm{eff}} X + N \in \mathbb{C}^{M},
+\label{eq:sys}
+\end{equation}
+其中 $H_{\mathrm{eff}}\in\mathbb{C}^{M\times K}$ 为 Rayleigh 等效信道（仿真中直接生成），$X=(X_1,\ldots,X_K)^\top$ 各分量取自归一化方形 $M$-QAM 星座 $\mathcal{A}$（默认 $|\mathcal{A}|=16$，扩展实验含 $|\mathcal{A}|=64$，$E_s=1$，Gray I/Q 映射），$N\sim\mathcal{CN}(0,N_0 I)$。信噪比 $\mathrm{SNR}_{\mathrm{dB}}=10\log_{10}(E_s/N_0)$。
+
+若把 $X$ 暂时看作\textbf{连续}复向量，则式\eqref{eq:sys} 是标准的\textbf{线性高斯观测模型}：$Y$ 对 $X$ 线性、噪声加性。匹配滤波、ZF、线性 MMSE 等，都是在这一线性模型下导出的估计器。本报告只检测期望用户 $X_1$，干扰为 $X_I=(X_2,\ldots,X_K)$；指标为 Gray 比特误码率。
+
+\section{星座约束：最优检测一般是非线性的}
+
+真实链路中 $X_k\in\mathcal{A}$ 只能取有限个点。检测因此变成离散假设检验，而不是无约束最小均方估计。联合 ML 为
+\begin{equation}
+\hat X_{\mathrm{ML}}
+=\arg\min_{X\in\mathcal{A}^K}\|Y-H_{\mathrm{eff}}X\|^2.
+\end{equation}
+尽管 $\|Y-HX\|^2$ 对固定 $X$ 来自线性观测，可行域 $\mathcal{A}^K$ 却是离散网格，故映射 $Y\mapsto\hat X_{\mathrm{ML}}$ \textbf{一般不是 $Y$ 的线性函数}。
+
+只检 $X_1$ 时，贝叶斯最优为边际 MAP：
+\begin{equation}
+\hat X_1^{\mathrm{MAP}}(y)=\arg\max_{a\in\mathcal{A}} f_a^*(y),\qquad
+f_a^*(y)=\mathbb{P}(X_1=a\mid Y=y),
+\end{equation}
+\begin{equation}
+f_a^*(y)\propto \sum_{x_I\in\mathcal{A}^{K-1}}
+\exp\Big(-\frac{1}{N_0}\big\|y-H_{\mathrm{eff}}(a,x_I)\big\|^2\Big).
+\label{eq:fstar}
+\end{equation}
+$K=40$ 时精确求和不可行，但形式已表明：最优后验由离散干扰上的边际化得到，属于\textbf{非线性推断}。
+
+\begin{center}
+\fbox{\parbox{0.92\linewidth}{\centering
+\textbf{一层线性，一层非线性：}\\[0.3em]
+观测模型 $Y=HX+N$ 可以是线性的；\\
+星座约束下的 MAP/ML 检测通常是非线性的。}}
+\end{center}
+
+\section{线性接收与非线性接收都可能存在}
+
+正因为存在上述两层结构，工程与研究中\textbf{线性方案与非线性方案都会出现}；哪一种占主导，取决于负荷、SNR、CSI 与是否需要软信息。
+
+\subsection{线性接收机：为何会大量存在}
+先把 $X$ 当连续变量做线性估计，再量化到 $\mathcal{A}$：
+\begin{align}
+\hat X_{\mathrm{MF}} &\propto H^H Y,\\
+\hat X_{\mathrm{ZF}} &= (H^H H)^{-1}H^H Y,\\
+\hat X_{\mathrm{MMSE}} &= H^H\big(H H^H+N_0 I\big)^{-1} Y.
+\end{align}
+它们复杂度低、硬件友好。当 $M\gg K$、用户信道近似正交、SNR 不低且 CSI 较准时，线性 MMSE 往往已接近最优\cite{hoydis2013,larsson2014}——此时再上复杂非线性，收益有限。因此\textbf{线性接收机在大规模 MIMO 中不仅“可能存在”，而且常常是默认部署}。可部署实现用 $\hat H,\hat N_0$ 替换真值，即本报告基线 \textbf{MMSE+LS}。
+
+\subsection{非线性接收机：为何同样会出现}
+当工作点偏离“天线远多于用户 + 高 SNR + 好 CSI”时，线性切片的 BER / 软信息质量不足，非线性方法就有动机进入接收链：
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{负荷比升高}（如本报告 $K/M=40/128$），多用户干扰强；
+  \item \textbf{低中 SNR}（0--10\,dB），噪声与干扰耦合，线性折中偏离 MAP；
+  \item \textbf{高阶调制}，决策边界更弯曲；
+  \item \textbf{需要接近后验的软输出}供译码器使用。
+\end{enumerate}
+此时可能出现的非线性形态包括：SIC/PIC、球形译码与格搜索、AMP/OAMP 类迭代，以及学习型非线性映射（深度网络、核方法等）。它们都仍建立在线性观测\eqref{eq:sys} 之上，只是\textbf{由 $Y$ 到符号/后验的映射不再限于线性}。
+
+\subsection{对照表}
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+层面 & 线性情形 & 非线性情形 \\
+\midrule
+观测方程 & $Y=HX+N$ 对连续 $X$ 线性 & --- \\
+最优检测 & 一般不是线性映射 & MAP/ML 对 $Y$ 非线性 \\
+可部署算法 & MF/ZF/MMSE 常为默认 & SIC/SD/AMP/学习检测 \\
+典型条件 & $M\gg K$、高 SNR、好 CSI & 高负荷、低中 SNR、要软信息 \\
+本报告角色 & MMSE+LS 基线 & MLD 上界；RKHS 非线性决策 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{本项目如何同时利用二者}
+RKHS 检测器对特征 $\varphi(y)$ 经核映射后得到 logits，再 $\arg\max$，整体是\textbf{非线性决策}；但 $\varphi$ 本身（如 $z_{\mathrm{rob}}$）大量借用线性--高斯估计中的白化/匹配结构。换言之：
+\begin{quote}
+用线性模型提炼充分统计，用非线性函数类逼近后验——线性与非线性在同一流水线中共存。
+\end{quote}
+
+\section{高斯干扰近似中的线性结构与非线性打分}
+
+将干扰 $H_I X_I$ 视为复高斯，协方差
+\begin{equation}
+R(H,N_0)= N_0 I + E_s H_I H_I^H,
+\end{equation}
+对每个 $a\in\mathcal{A}$ 计算对数软分，得 $z(y;H,N_0)\in\mathbb{R}^{16}$。协方差白化来自线性高斯理论；对有限星座逐点打分则是非线性步骤。Oracle 用真 $H$ 的 $z$；可部署用稳健 $z_{\mathrm{rob}}(\hat H)$。
+
+\section{学习目标 $J(f)$}
+
+\begin{equation}
+J(f)=\mathbb{E}\Big[
+-\log\frac{f_{X_1}(Y)}{\sum_b f_b(Y)}
+\Big]
++\lambda\,\|f\|_{\mathcal{H}}^2.
+\label{eq:J}
+\end{equation}
+$J$ 对应后验拟合；其最优决策一般仍是 $Y$ 的非线性函数。线性 MMSE 可视为更强约束下的可计算近似。本项目以 $J$ 训练、以 BER 评价。
+
+\section{导频与 CSI 误差}
+
+正交归一导频长度 $T$ 时，LS 估计误差方差近似
+\begin{equation}
+\sigma_e^2 \approx \hat N_0\cdot\frac{K}{T}.
+\label{eq:se2}
+\end{equation}
+无论最终用线性 MMSE 还是非线性 RKHS，可部署接收都必须在 $\sigma_e^2>0$ 下工作。
+
+\section{小结}
+
+\begin{enumerate}[leftmargin=2em]
+  \item 观测模型可以是线性的；星座约束下最优检测通常是非线性的。
+  \item 因此\textbf{线性与非线性接收都可能存在}：条件好时线性足够且应优先；负荷高、SNR 低、需要后验软信息时，非线性有价值。
+  \item 本报告：MMSE+LS＝线性可部署基线；MLD/Oracle＝非线性贝叶斯参照；RKHS＝在线性结构特征上的非线性后验学习。
+\end{enumerate}

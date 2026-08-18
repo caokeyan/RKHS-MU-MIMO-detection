@@ -1,0 +1,64 @@
+\chapter{实现细节与工程要点}
+\label{ch:impl}
+
+\section{代码模块映射}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+模块 & 文件 \\
+\midrule
+系统与采样 & \texttt{system.py} \\
+MLD / GA 软分 & \texttt{mld.py} \\
+导频与 MMSE & \texttt{mmse.py} \\
+损失 $J$ & \texttt{objective.py} \\
+核与 MKL & \texttt{kernel\_rkhs.py} \\
+主检测器 & \texttt{rkhs\_mld\_approx.py} \\
+评测脚手架 & \texttt{test\_oracle\_rkhs.py} \\
+中期入口 & \texttt{midterm\_final.py} \\
+CNN 基线 & \texttt{cnn\_detector.py} \\
+扩展多场景 / 64-QAM & \texttt{run\_extended\_exp.py}（\texttt{system.set\_modulation}） \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\texttt{RKHSApproxMLDDetector} 统一实现 \texttt{blind}/\texttt{struct}/\texttt{struct\_hat} 与 \texttt{fstar}/\texttt{hard}/\texttt{plugin}。评测中可部署路径固定为 \texttt{feature\_mode=struct\_hat, target=hard}；Oracle 为 \texttt{struct+fstar}。调制阶数由 \texttt{system.set\_modulation(16|64)} 同步全局星座、比特映射及各模块中的 \texttt{MOD\_ORDER}。超参表与增益定义见第\ref{ch:exp}章。
+
+\section{数值稳定}
+
+\begin{itemize}
+  \item 对 $z$ 与 $\log f^*$ 做行级减最大值；
+  \item 核矩阵迹归一；
+  \item 高 SNR 缩短 L-BFGS、收缩基核，避免训练 SER 崩溃到随机猜测；
+  \item 聚合时要求验证 $J$ 不明显变差才替换主模型。
+\end{itemize}
+
+\section{中心选择}
+
+默认在训练集约 2000 点中取固定子集作为中心（高维盲特征时上限更低；16 维 struct 可更高）。跨 SNR 复用同一物理信道上的固定中心池，减轻曲线抖动。
+
+\section{理论 $\gamma,\lambda$ 锚点}
+
+实现提供 \texttt{gamma\_theory\_rkhs}、\texttt{lam\_theory\_rkhs}，使带宽随噪声水平缩放、正则随 $N_0/n$ 变化。可部署主线以理论锚点为主，辅以 MKL 自适应，而不是每个 SNR 盲目网格暴力搜索（旧 Oracle 盲-$y$ 路径曾依赖复杂 $\gamma$ 搜索仍不稳定）。
+
+\section{训练计算量}
+
+瓶颈在核矩阵与 MKL/NN 迭代。中期设定 $n_{\mathrm{train}}=2000$、$6$ 个 SNR、$3$ 条信道，整次复现可达数十分钟至数小时量级（视 CPU/GPU）。Oracle 的 struct+$f^*$ 闭式路径显著快于 hard+MKL。
+
+\section{复现命令}
+
+\begin{verbatim}
+# 中期基线（16-QAM, 0--10 dB）
+python -u midterm_final.py \
+  --snr-list "0,2,4,6,8,10" \
+  --n-train 2000 --n-test 3000 --n-chan 3 \
+  --save-dir midterm_results
+
+# 扩展：16-QAM 射频类失真 / 全场景拼图
+python -u run_extended_exp.py --mod-order 16 --only rf_extra
+python -u run_extended_exp.py --mod-order 16 --only plot_only
+
+# 扩展：64-QAM 主场景
+python -u run_extended_exp.py --mod-order 64 --only qam64
+\end{verbatim}
+依赖见根目录 \texttt{requirements.txt}：\texttt{numpy,scipy,matplotlib,torch}。评测配置与增益 $G$ 的精确定义见第\ref{ch:exp}章表\ref{tab:rkhs-cfg}与式\eqref{eq:gain}。

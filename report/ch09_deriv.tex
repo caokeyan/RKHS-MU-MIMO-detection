@@ -1,0 +1,50 @@
+\chapter{补充推导与设计辨析}
+\label{ch:deriv}
+
+\section{由后验到交叉熵目标}
+
+设决策规则为 $\hat a(y)=\arg\max_a f_a(y)$，在 0-1 损失下贝叶斯风险由后验最大元给出。若输出软分布 $q_a(y)=f_a(y)/\sum_b f_b(y)$，则期望交叉熵
+\begin{equation}
+\mathbb{E}\big[-\log q_{X_1}(Y)\big]
+=\mathbb{E}\big[D_{\mathrm{KL}}(f^*(Y)\|q(Y))\big]+\mathrm{Const}
+\end{equation}
+在固定 $f^*$ 时与 $D_{\mathrm{KL}}(f^*\|q)$ 同步最小化。因此式\eqref{eq:J} 的数据项是对后验拟合的严格真评分目标。加入 $\|f\|_{\mathcal{H}}^2$ 后，得到在假设类 $\mathcal{H}$ 中的正则化贝叶斯风险代理。
+
+\section{GA 软分与二次型}
+
+在干扰高斯近似下，似然涉及二次型
+\begin{equation}
+\big(y-a\hat h_1\big)^H R^{-1}\big(y-a\hat h_1\big).
+\end{equation}
+对不同 $a$ 计算该量（或等价对数分）即得 $z_a$。稳健化只替换 $R\to R_{\mathrm{rob}}$，不改变“16 维软分作特征”的结构。由此，$z_{\mathrm{rob}}$ 可视为\textbf{把 CSI 不确定度折叠进充分统计}的一步。
+
+\section{为何 plugin 教师不可过重}
+
+$\hat p=\mathrm{softmax}(z_{\mathrm{rob}})$ 是错误指定模型下的伪后验：既有 GA 近似误差，又有 $\hat H\neq H$ 误差。以 $\hat p$ 为强教师等于要求 $f$ 拟合一个有偏目标，可能增大与真 $X_1$ 相关的 $J_{\mathrm{hard}}$。故可部署默认以 hard 为主，plugin 仅作轻正则。
+
+\section{聚合作为同假设类上的模型平均}
+
+设候选 logits $\{L^{(j)}\}$ 均来自同一 $K_\eta$ 的不同 $\alpha^{(j)}$。验证集权重 $w_j\propto \exp(-\beta J_{\mathrm{val}}^{(j)})$，得 $L=\sum_w L^{(j)}$，再解
+\begin{equation}
+\min_\alpha \|K\alpha^\top-L\|_F^2+\lambda\|\alpha\|^2_K
+\end{equation}
+投影回表示定理形式。这保证部署期仍只存一份 $(\eta,\alpha)$。
+
+\section{堆叠的信息论直觉}
+
+一阶段输出 $\mathrm{softmax}(L_1)$ 提供对后验的初步估计；与 $z_{\mathrm{rob}}$ 拼接后，二阶段 RKHS 学习“校正映射”。这类似残差学习，但特征仍显式包含物理统计量，避免纯黑盒。仅在验证 BER 改善时启用，是为防止堆叠过拟合验证噪声。
+
+\section{与 MMSE 的关系}
+
+MMSE 估计是在线性约束下最小化均方误差，再切片。RKHS 方法直接优化分类型 $J$，假设类远大于线性函数。当 $z_{\mathrm{rob}}$ 已含近似白化匹配信息时，核方法是在\textbf{非线性后处理}这些软分，从而在低中 SNR 获得增益。Oracle 显示：若软分基于真 $H$，非线性后处理可把性能推到 MLD；若基于 $\hat H$，则增益有限但可观。
+
+\section{失败模式清单}
+
+\begin{enumerate}[leftmargin=2em]
+  \item 在原始 $Y$ 上拟合尖锐 $f^*$：带宽难选，高 SNR 崩。
+  \item 把 $\hat H$ 代入非稳健 $R$：高 SNR 过自信。
+  \item 重 plugin：有偏教师。
+  \item 过高 SNR 上过度 L-BFGS / 过多基核：训练数值崩溃。
+  \item 用 Oracle 特权信息报告为可部署性能：不可复现于真实链路。
+\end{enumerate}
+本章所列辨析直接对应本项目调试中的真实教训。

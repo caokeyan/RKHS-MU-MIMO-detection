@@ -10,3 +10,10 @@ venv/
 !midterm_results/*.log
 !midterm_results/*.txt
 !midterm_results/final_summary.npz
+!extended_results/**/*.png
+!extended_results/**/*.csv
+!extended_results/**/*.log
+!extended_results/**/*.npz
+!extended_results/**/*.txt
+extended_results/batch.pid
+extended_results/_run_batch.sh

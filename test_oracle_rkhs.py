@@ -88,7 +88,14 @@ def _samples_at_snr(
     tag = 0 if which == "train" else 1
     rng = _snr_noise_rng(ds["base_seed"], snr_db, tag)
     x_idx = ds["x_idx_tr"] if which == "train" else ds["x_idx_te"]
-    return generate_samples_from_indices(x_idx, ds["H"], snr_db, rng)
+    return generate_samples_from_indices(
+        x_idx,
+        ds["H"],
+        snr_db,
+        rng,
+        nonlin_mode=str(ds.get("nonlin_mode", "none")),
+        nonlin_beta=float(ds.get("nonlin_beta", 0.35)),
+    )
 
 
 def _channel_rng(seed: int, channel_idx: int) -> np.random.Generator:
@@ -528,6 +535,10 @@ def _fit_rkhs_nn(
             )
         if tgt == "fstar" and f_star_train is None:
             tgt = "hard"
+        # Oracle（struct+f*）只做闭式逼近；NN/聚合/堆叠留给可部署 hard 路径
+        # 高 SNR（≥12）关闭堆叠，避免稀有错误被二阶段过拟合
+        use_hard_enh = tgt == "hard" and feature_mode in ("struct_hat", "cond_hat")
+        stack_ok = use_hard_enh and float(snr_db) < 12.0
         det = RKHSApproxMLDDetector(
             feature_mode=feature_mode if feature_mode != "cond_hat" else "struct_hat",
             target=tgt,
@@ -538,11 +549,10 @@ def _fit_rkhs_nn(
             expr_tune=False,
             lock_ms_ratios=True,
             gamma_scale=1.0,
-            # Oracle（struct+f*）只做闭式逼近；NN/聚合/堆叠留给可部署 hard 路径
-            use_nn=(tgt == "hard" and feature_mode in ("struct_hat", "cond_hat")),
-            aggregate=(tgt == "hard" and feature_mode in ("struct_hat", "cond_hat")),
-            n_mkl_bags=2 if (tgt == "hard" and feature_mode in ("struct_hat", "cond_hat")) else 1,
-            stack_rkhs=(tgt == "hard" and feature_mode in ("struct_hat", "cond_hat")),
+            use_nn=use_hard_enh,
+            aggregate=use_hard_enh,
+            n_mkl_bags=2 if use_hard_enh else 1,
+            stack_rkhs=stack_ok,
         )
         det.fit(
             y_fit,
@@ -1320,7 +1330,13 @@ def eval_one_snr(
     # MMSE+LS：论文式 MC（每 SNR 独立符号/数据噪声/导频；与 MLD/Oracle 测试集分离）
     t0 = time.perf_counter()
     ber_mmse = run_mmse_ls_bit_ber_mc(
-        H, snr_db, rng, n_test=n_test, n_trials=n_mmse_trials
+        H,
+        snr_db,
+        rng,
+        n_test=n_test,
+        n_trials=n_mmse_trials,
+        nonlin_mode=str(fixed_data.get("nonlin_mode", "none")) if fixed_data else "none",
+        nonlin_beta=float(fixed_data.get("nonlin_beta", 0.35)) if fixed_data else 0.35,
     )
     if progress:
         _log_method_step(

@@ -1,0 +1,294 @@
+\chapter{实验设置与结果分析}
+\label{ch:exp}
+
+本章给出可复现的实验协议、评价指标与相对增益定义，并报告中期基线、线性扩展、多前端失真及 64-QAM 迁移结果。可部署 RKHS 的计算流程与决策形式见第\ref{ch:method}章；此处仅固定其\textbf{评测配置}，避免与方法叙述混写。
+
+\section{评价指标与相对增益定义}
+\label{sec:metric}
+
+对期望用户符号索引 $\hat X_1,\ X_1\in\{0,\ldots,|\mathcal{A}|-1\}$，采用 Gray 标注的 I/Q 比特映射，定义 bit 误码率
+\begin{equation}
+\mathrm{BER}
+=\frac{1}{N_{\mathrm{bit}}}
+\sum_{i=1}^{N_{\mathrm{te}}}
+\sum_{b=1}^{\log_2|\mathcal{A}|}
+\mathbf{1}\!\left\{
+\mathrm{bit}_b(X_1^{(i)})\neq\mathrm{bit}_b(\hat X_1^{(i)})
+\right\},
+\label{eq:ber}
+\end{equation}
+其中 $N_{\mathrm{bit}}=N_{\mathrm{te}}\log_2|\mathcal{A}|$。除特别声明外，下文“BER”均指式\eqref{eq:ber}。
+
+为量化可部署 RKHS 相对线性基线的边际收益，定义相对 MMSE+LS 的 BER 降幅
+\begin{equation}
+G
+=\frac{\mathrm{BER}_{\mathrm{MMSE}}-\mathrm{BER}_{\mathrm{RKHS}}}{\mathrm{BER}_{\mathrm{MMSE}}}
+\times 100\%.
+\label{eq:gain}
+\end{equation}
+$G>0$ 表示 RKHS 优于 MMSE；$G<0$ 表示劣于 MMSE。多信道实验时，先对每条信道独立估计 BER，再对信道取算术平均得到 $\overline{\mathrm{BER}}$，最后用 $\overline{\mathrm{BER}}$ 代入式\eqref{eq:gain}。该定义与实现中 \texttt{gain\_pct} 字段一致。
+
+对照方法含义如下：
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{MLD}：真 $H$ 下对 $X_1$ 的边际近似（高斯干扰近似 / Monte Carlo），贝叶斯最优参照；
+  \item \textbf{Oracle}：真 $H$ 的 struct 特征 + 真后验 $f^*$ 的 RKHS 闭式拟合（可逼近性上界）；
+  \item \textbf{RKHS $z_{\mathrm{rob}}$}：可部署主线（$\hat H$ + hard + Adaptive-MKL，见第\ref{ch:method}章）；
+  \item \textbf{MMSE+LS}：同一导频 LS 信道上的线性 MMSE 估计再硬切片。
+\end{itemize}
+
+\section{公共实验配置}
+\label{sec:exp-config}
+
+\subsection{系统与数据}
+
+\begin{table}[H]
+\centering
+\caption{公共系统与采样配置}
+\label{tab:sys-cfg}
+\begin{tabular}{ll}
+\toprule
+项目 & 设定 \\
+\midrule
+天线 / 用户 & $M=128$，$K=40$；仅检测期望用户 $X_1$ \\
+调制 & 方形单位能量 QAM；Gray I/Q 映射；$|\mathcal{A}|\in\{16,64\}$ \\
+信道 & i.i.d.\ Rayleigh 块衰落 $H_{\mathrm{eff}}$；每信道独立重采样 \\
+观测 & 线性：$Y=HX+N$；非线性：在 $Y$ 上再施无记忆失真（见下） \\
+噪声 & $N\sim\mathcal{CN}(0,N_0 I)$，$\mathrm{SNR}_{\mathrm{dB}}=10\log_{10}(E_s/N_0)$，$E_s=1$ \\
+随机种子 & 信道种子基址 $42$；信道索引偏移固定 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{样本量、信道数与 SNR 网格}
+\label{tab:sample-cfg}
+\begin{tabular}{lll}
+\toprule
+设定 & 16-QAM & 64-QAM \\
+\midrule
+训练 / 测试 & $N_{\mathrm{tr}}=2000$ / $N_{\mathrm{te}}=3000$ & $2500$ / $3000$ \\
+信道数（扩展） & $2$（中期基线为 $3$） & $2$ \\
+SNR 网格（扩展主结果） & $\{0,4,8,12,16\}$\,dB & $\{4,8,12,16,20\}$\,dB \\
+线性细网格（对照） & $\{0,2,\ldots,16\}$\,dB & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+前端无记忆失真（检测器仍按线性模型+$z_{\mathrm{rob}}$ 工作，构成\textbf{模型失配}）取值见表\ref{tab:nonlin-cfg}。
+
+\begin{table}[H]
+\centering
+\caption{前端失真场景与参数}
+\label{tab:nonlin-cfg}
+\begin{tabular}{lll}
+\toprule
+场景标签 & 变换（示意） & 参数 \\
+\midrule
+\texttt{linear} & 无附加失真 & --- \\
+\texttt{soft\_clip} & $\tilde y=y/\sqrt{1+\beta|y|^2}$ & $\beta=0.35$ \\
+\texttt{kerr} & $\tilde y=y+\beta|y|^2 y$ & $\beta=0.05$ \\
+\texttt{mzm} & 幅度经 $\sin(\pi u/2)$ 型压缩，相位保留 & $\beta=0.9$ \\
+\texttt{hard\_clip} & $|\tilde y|\le \tau\cdot\mathrm{rms}(|y|)$ & $\tau=1.5$ \\
+\texttt{phase\_noise} & $\tilde y=y\,e^{\mathrm{j}\theta}$，$\theta\sim\mathcal{N}(0,\sigma^2)$ & $\sigma=0.15$ \\
+\texttt{iq\_imbalance} & I/Q 增益与正交误差 & $\beta=0.10$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{可部署 RKHS 评测配置}
+
+与第\ref{ch:method}章算法一致，评测固定如下超参表（实现：\texttt{RKHSApproxMLDDetector}，入口 \texttt{run\_extended\_exp.py}）。
+
+\begin{table}[H]
+\centering
+\caption{可部署 RKHS 超参与调度}
+\label{tab:rkhs-cfg}
+\begin{tabular}{ll}
+\toprule
+项目 & 设定 \\
+\midrule
+特征 / 损失 & \texttt{struct\_hat} / \texttt{hard}（不用真 $H$、不用真 $f^*$） \\
+核模式 & Adaptive-MKL；低中 SNR 用加密比例组，\mbox{$\mathrm{SNR}\ge 10\,\mathrm{dB}$} 用标准基核组 \\
+正则 & $\lambda=c\cdot\max(N_0,0.1)/n$；系数 $c$ 见表内调度 \\
+$c$（16-QAM） & 低 SNR：$0.1$；$\ge 10\,\mathrm{dB}$：$0.05$；$\ge 14\,\mathrm{dB}$：$0.04$ \\
+$c$（64-QAM） & 低 SNR：$0.12$；$\ge 10\,\mathrm{dB}$：$0.08$；$\ge 14\,\mathrm{dB}$：$0.05$ \\
+稳健加载 & 默认开启；$\sigma_e^2$ 随 SNR 衰减；$\ge 14\,\mathrm{dB}$ 关闭 \\
+表达增强 & NN-in-RKHS + 验证聚合 + $n_{\mathrm{bag}}=2$ \\
+二阶堆叠 & 仅当 $\mathrm{SNR}<12\,\mathrm{dB}$ 且验证 BER 改善时启用 \\
+导频 & 默认长度（\texttt{pilot\_mult}$=1$），不加长导频 \\
+重试规则 & 若 BER 相对前一 SNR 反弹或劣于 MMSE，则减小 $c$ 再训一次并择优 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+CSI 误差模型取 $\sigma_e^2=\hat N_0\cdot K/T_{\mathrm{pilot}}$（第\ref{ch:model}--\ref{ch:method}章）。Oracle 使用真 $H$ 的 \texttt{struct}+\texttt{fstar} 闭式拟合，不启用 NN/堆叠。
+
+\section{中期基线结果（线性，0--10\,dB）}
+
+图\ref{fig:exp1}--\ref{fig:gain}与表\ref{tab:ber}给出 0--10\,dB、\textbf{3 信道}平均的中期结果（$N_{\mathrm{tr}}/N_{\mathrm{te}}=2000/3000$，16-QAM）。相对增益按式\eqref{eq:gain}计算。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{exp1_mld_baseline.png}
+  \caption{MLD 基准：$J(f_a^*)$ 与 bit BER（中期 0--10\,dB）。}
+  \label{fig:exp1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{exp2_rkhs_approximation.png}
+  \caption{RKHS Oracle 逼近 MLD：MSE、BER 与对数损失。}
+  \label{fig:exp2}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{exp3_end_to_end.png}
+  \caption{端到端对比（中期）：$z_{\mathrm{rob}}$ vs MMSE/CNN/Oracle。}
+  \label{fig:exp3}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{中期三信道平均 bit BER 与相对 MMSE 增益 $G$（0--10\,dB，16-QAM）}
+\label{tab:ber}
+\begin{tabular}{crrrrr}
+\toprule
+SNR (dB) & MLD & Oracle & RKHS $z_{\mathrm{rob}}$ & MMSE+LS & $G$ (\%) \\
+\midrule
+0  & $2.78\times10^{-5}$ & $2.78\times10^{-5}$ & $2.22\times10^{-1}$ & $2.76\times10^{-1}$ & 19.6 \\
+2  & $0$ & $0$ & $1.70\times10^{-1}$ & $2.15\times10^{-1}$ & 21.1 \\
+4  & $0$ & $0$ & $1.24\times10^{-1}$ & $1.60\times10^{-1}$ & 22.2 \\
+6  & $0$ & $0$ & $7.93\times10^{-2}$ & $1.05\times10^{-1}$ & 24.7 \\
+8  & $0$ & $0$ & $4.15\times10^{-2}$ & $5.15\times10^{-2}$ & 19.4 \\
+10 & $0$ & $0$ & $1.57\times10^{-2}$ & $2.40\times10^{-2}$ & 34.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{ppt_ber_gain.png}
+  \caption{中期：可部署 RKHS 相对 MMSE 的增益 $G$。}
+  \label{fig:gain}
+\end{figure}
+
+\noindent
+在该区间可部署 RKHS 相对 MMSE 全程正增益，约 $19\%$--$35\%$；Oracle 与 MLD 的 BER 高度一致，支持第\ref{ch:theory}章的可逼近性论断。
+
+\section{扩展实验 A：线性场景至高 SNR}
+
+将线性观测 SNR 延伸至 16\,dB（16-QAM）及 20\,dB（64-QAM），检验 BER 随 SNR 的总体递减性及相对 MMSE 的稳定性。高 SNR 采用表\ref{tab:rkhs-cfg}中的加载衰减、关闭堆叠与较小 $c$ 重试。
+
+表\ref{tab:lin16}给出 16-QAM 线性细网格的双信道平均结果。可见 0--12\,dB 区间 $G>0$，而 14--16\,dB 出现负增益：错误事件变得稀少，有限样本核估计方差相对线性 MMSE 更不利。该现象在 64-QAM 线性场景（表\ref{tab:qam64-gain}）于 16--20\,dB 同样出现。
+
+\begin{table}[H]
+\centering
+\caption{16-QAM 线性场景 BER 与相对增益 $G$（2 信道平均）}
+\label{tab:lin16}
+\begin{tabular}{crrrr}
+\toprule
+SNR (dB) & RKHS & MMSE+LS & $G$ (\%) \\
+\midrule
+0  & $2.21\times10^{-1}$ & $2.78\times10^{-1}$ & $+20.4$ \\
+2  & $1.70\times10^{-1}$ & $2.20\times10^{-1}$ & $+22.7$ \\
+4  & $1.25\times10^{-1}$ & $1.50\times10^{-1}$ & $+17.1$ \\
+6  & $8.10\times10^{-2}$ & $1.06\times10^{-1}$ & $+23.8$ \\
+8  & $4.18\times10^{-2}$ & $5.11\times10^{-2}$ & $+18.3$ \\
+10 & $1.59\times10^{-2}$ & $2.31\times10^{-2}$ & $+31.0$ \\
+12 & $4.44\times10^{-3}$ & $8.82\times10^{-3}$ & $+49.6$ \\
+14 & $8.33\times10^{-4}$ & $5.56\times10^{-4}$ & $-50.0$ \\
+16 & $1.94\times10^{-4}$ & $4.63\times10^{-5}$ & $-320$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{扩展实验 B：多前端失真（16-QAM）}
+\label{sec:exp-nonlin16}
+
+在 $Y=HX+N$ 之后施加表\ref{tab:nonlin-cfg}失真，\textbf{同一}可部署流水线评测。图\ref{fig:gallery16}为各场景 BER 与 $G$ 拼图；表\ref{tab:gain16}汇总相对 MMSE 的增益。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{gallery_qam16.png}
+  \caption{16-QAM 多场景拼图：左列为 BER，右列为相对 MMSE 增益 $G$。}
+  \label{fig:gallery16}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{16-QAM：可部署 RKHS 相对 MMSE 的增益 $G$（\%，2 信道平均）}
+\label{tab:gain16}
+\begin{tabular}{lrrrrrr}
+\toprule
+场景 & 0\,dB & 4\,dB & 8\,dB & 12\,dB & 16\,dB & 均值 \\
+\midrule
+\texttt{soft\_clip}   & $+18.5$ & $+39.3$ & $+58.6$ & $+70.2$ & $+74.9$ & $+52.3$ \\
+\texttt{mzm}          & $+14.2$ & $+27.8$ & $+37.2$ & $+44.9$ & $+49.2$ & $+34.7$ \\
+\texttt{kerr}         & $+4.4$  & $+25.2$ & $+38.4$ & $+48.5$ & $+54.8$ & $+34.3$ \\
+\texttt{hard\_clip}   & $+18.8$ & $+29.9$ & $+36.4$ & $+38.2$ & $+31.6$ & $+31.0$ \\
+\texttt{phase\_noise} & $+16.8$ & $+23.5$ & $+21.1$ & $+7.8$  & $+2.2$  & $+14.3$ \\
+\texttt{iq\_imbalance}& $+14.9$ & $+21.8$ & $+16.4$ & $+1.0$  & $-170$  & --- \\
+\texttt{linear}$^\dagger$ & $+20.4$ & $+17.1$ & $+18.3$ & $+49.6$ & $-320$ & --- \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}
+\footnotesize $^\dagger$ linear 行取自细网格中对应 SNR；高 SNR 负增益见第\ref{sec:metric}节讨论。\\
+\texttt{iq\_imbalance} 在 16\,dB 出现大幅负增益，表明相位/正交类失配与稀有错误共同放大了核估计方差。
+\end{flushleft}
+\end{table}
+
+\noindent
+在幅度型失真（soft-clip / Kerr / MZM / hard-clip）下，$G$ 多为强正且随 SNR 增大：线性 MMSE 对模型失配更敏感，而 $z_{\mathrm{rob}}$+RKHS 仍保留一定非线性校正能力。相位噪声增益随 SNR 收窄；I/Q 失衡在最高 SNR 点失效，与线性高 SNR 瓶颈同类。
+
+\section{扩展实验 C：64-QAM 迁移}
+\label{sec:exp-qam64}
+
+保持检测流水线不变，仅将星座切换为 64-QAM（\texttt{system.set\_modulation(64)}），并采用表\ref{tab:sample-cfg}--\ref{tab:rkhs-cfg}中 64-QAM 配置。图\ref{fig:gallery64}与表\ref{tab:qam64-gain}给出主场景结果；图\ref{fig:cmp1664}对照 16/64-QAM。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{gallery_qam64.png}
+  \caption{64-QAM 多场景拼图（linear / soft\_clip / kerr / hard\_clip）。}
+  \label{fig:gallery64}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{64-QAM：相对 MMSE 增益 $G$（\%，2 信道平均）}
+\label{tab:qam64-gain}
+\begin{tabular}{lrrrrrr}
+\toprule
+场景 & 4\,dB & 8\,dB & 12\,dB & 16\,dB & 20\,dB & 均值 \\
+\midrule
+\texttt{soft\_clip} & $+25.6$ & $+39.2$ & $+50.3$ & $+54.6$ & $+56.6$ & $+45.3$ \\
+\texttt{kerr}       & $+12.1$ & $+22.2$ & $+32.6$ & $+36.8$ & $+38.6$ & $+28.5$ \\
+\texttt{hard\_clip} & $+14.5$ & $+21.9$ & $+23.5$ & $+27.1$ & $+30.2$ & $+23.4$ \\
+\texttt{linear}     & $+12.4$ & $+15.9$ & $+15.4$ & $-1.5$  & $-185$  & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{compare_16_vs_64.png}
+  \caption{同一流水线下 16-QAM 与 64-QAM 的 BER 对照（节选场景）。}
+  \label{fig:cmp1664}
+\end{figure}
+
+\noindent
+64-QAM 绝对 BER 高于 16-QAM（星座更密），但相对 MMSE 的增益模式与 16-QAM 一致：失真场景强正增益，线性高 SNR 仍可能翻负。这说明方法迁移主要受类别数与样本/正则调度影响，而非需重设计检测器结构。
+
+\section{结果综合与局限}
+
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{中期（0--10\,dB，16-QAM）}：可部署 RKHS 相对 MMSE 约 $19\%$--$35\%$ BER 降低；Oracle$\approx$MLD。
+  \item \textbf{多前端失真}：同一 $z_{\mathrm{rob}}$+RKHS 流水线在幅度型失配下可取得约 $23\%$--$52\%$ 的平均 $G$（表\ref{tab:gain16}--\ref{tab:qam64-gain}）。
+  \item \textbf{高 SNR 线性瓶颈}：稀有错误 + CSI/正则调度使 $G$ 可翻负；需更大测试集、更精细的高 SNR 核带宽/正则，或与线性估计器融合，方能进一步闭合差距。
+  \item \textbf{64-QAM}：验证更高阶调制下流水线可迁移；应关注相对增益而非绝对 BER 的跨调制直接数值比较。
+\end{enumerate}
+
+局限：无记忆失真仅为简化前端模型；扩展实验信道数与 SNR 网格按算力裁剪；64-QAM 下每类样本更少，核估计方差更大；实时复杂度未系统评估。
+
+扩展实验入口：\texttt{python run\_extended\_exp.py --mod-order \{16|64\} --only gallery|qam64|rf\_extra}；原始数值见 \texttt{extended\_results/qam16/}、\texttt{qam64/}。
