@@ -1,0 +1,33 @@
+% !TEX program = xelatex
+\documentclass[12pt,a4paper,openany]{ctexrep}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{amsmath,amssymb,bm,mathtools}
+\usepackage{booktabs,hyperref,setspace,enumitem,float,cite}
+\onehalfspacing
+\title{\textbf{RKHS 检测：理论证明与推导附录}\\（内部稿，不随公司交付正文分发）}
+\author{个人研究笔记}
+\date{\today}
+\begin{document}
+\maketitle
+\begin{abstract}
+\noindent
+本附录收录命题/定理的完整表述与证明要点，对应主报告（公司交付版）中的方法与实验。
+\textbf{请勿将本附录并入对外/对公司交付的 PDF。}
+\end{abstract}
+\tableofcontents
+\clearpage
+\input{ch04_theory}
+\input{ch09_deriv}
+\begin{thebibliography}{99}
+\bibitem{awan2018} D.~A.~Awan et~al., ``Detection for 5G-NOMA,'' IEEE ICC, 2018.
+\bibitem{steinwart2001} I.~Steinwart, JMLR, 2001.
+\bibitem{scholkopf2001} B.~Sch{\"o}lkopf et~al., COLT, 2001.
+\bibitem{bartlett2002} P.~L.~Bartlett and S.~Mendelson, JMLR, 2002.
+\bibitem{bach2004} F.~R.~Bach et~al., ICML, 2004.
+\bibitem{rakotomamonjy2008} A.~Rakotomamonjy et~al., ``SimpleMKL,'' JMLR, 2008.
+\bibitem{proakis2008} J.~G.~Proakis and M.~Salehi, \textit{Digital Communications}, 2008.
+\bibitem{tse2005} D.~Tse and P.~Viswanath, \textit{Fundamentals of Wireless Communication}, 2005.
+\bibitem{schafer2006} B.~Sch{\"o}lkopf and A.~J.~Smola, \textit{Learning with Kernels}, 2002.
+\end{thebibliography}
+\end{document}

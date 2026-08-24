@@ -25,23 +25,18 @@
 \captionsetup{font=small,labelfont=bf}
 \graphicspath{{figures/}}
 
-\title{\textbf{基于再生核希尔伯特空间的\\大规模 MU-MIMO 符号检测研究报告}}
-\author{课题组\quad RKHS 优化问题}
+\title{\textbf{基于再生核希尔伯特空间的\\大规模 MU-MIMO 符号检测技术报告}}
+\author{RKHS MU-MIMO 检测项目组}
 \date{\today}
 
 \begin{document}
 \maketitle
 \begin{abstract}
 \noindent
-大规模多用户多输入多输出（MU-MIMO）系统中，基站需在多用户干扰与有限信道状态信息（CSI）条件下完成可靠符号检测。最大似然检测（MLD）在贝叶斯意义下最优，但其复杂度随用户数指数增长；线性最小均方误差（MMSE）检测可部署，但在低中信噪比与强干扰场景性能受限。深度学习检测器近年取得进展，却往往依赖大量标注、可解释性不足，且对 CSI 误差敏感。
+本报告面向大规模 MU-MIMO 上行符号检测，给出一套\textbf{可部署}的 RKHS 检测方案：在导频 LS 信道 $\hat H$ 上构造稳健充分统计 $z_{\mathrm{rob}}$，以 Adaptive-MKL 最小化贝叶斯后验损失，判决保持核展开形式
+$L=K_\eta\alpha^\top$，$\hat X_1=\arg\max L$。方法不依赖真 $H$ 与真后验 $f^*$ 监督。
 
-本报告研究一类以\textbf{再生核希尔伯特空间（RKHS）}为假设类、以\textbf{贝叶斯后验损失}为目标的检测框架。决策始终保持
-\[
-L(y)=K_\eta(\varphi(y),C)\alpha^\top,\qquad \hat X_1=\arg\max_a L_a(y)
-\]
-的核展开形式。针对可部署约束（无真信道 $H$、无真后验 $f^*$ 监督），提出稳健结构化特征 $z_{\mathrm{rob}}(y;\hat H)$，并在 Adaptive-MKL、核内神经网络系数生成、验证集聚合与可选二阶堆叠等模块上强化表达能力。同时，以真 $H$ 的 struct 特征拟合 $f^*$ 构造 RKHS Oracle，实证说明：在合适核空间中可任意逼近贝叶斯后验。
-
-在 $M=128$、$K=40$、16/64-QAM、仅检测期望用户 $X_1$ 的设定下，实验表明：可部署 RKHS 相对 MMSE+LS 在 16-QAM、0--10\,dB 降低误比特率约 19\%--35\%；在多种前端失真下相对增益可进一步扩大；Oracle 与 MLD 高度一致。报告系统阐述问题背景、研究现状、理论基础、方法细节、实现要点与实验结果，并讨论局限与后续方向。
+在 $M=128$、$K=40$、16/64-QAM 设定下，报告给出相对 MMSE+LS 的 BER 增益、多前端失真兼容性、更高阶调制迁移，以及基于 Sionna 3GPP CDL / Kronecker 相关信道的补充实验。正文以\textbf{方法流程、实验配置与结果}为主；学术证明另册，不纳入本交付文档。
 \end{abstract}
 
 \tableofcontents
@@ -52,7 +47,6 @@ L(y)=K_\eta(\varphi(y),C)\alpha^\top,\qquad \hat X_1=\arg\max_a L_a(y)
 \input{ch03_model}
 \input{ch04_theory}
 \input{ch05_method}
-\input{ch09_deriv}
 \input{ch06_impl}
 \input{ch07_exp}
 \input{ch08_discuss}
@@ -208,6 +202,26 @@ Cambridge University Press, 2004.
 A.~Rakotomamonjy, F.~Bach, S.~Canu, and Y.~Grandvalet,
 ``SimpleMKL,''
 \textit{JMLR}, 2008.
+
+\bibitem{awan2018}
+D.~A.~Awan, R.~L.~G.~Cavalcante, M.~Yukawa, and S.~Stanczak,
+``Detection for 5G-NOMA: An online adaptive machine learning approach,''
+\textit{IEEE ICC}, 2018.
+
+\bibitem{steinwart2001}
+I.~Steinwart,
+``On the influence of the kernel on the consistency of support vector machines,''
+\textit{JMLR}, vol.~2, pp.~67--93, 2001.
+
+\bibitem{scholkopf2001}
+B.~Sch{\"o}lkopf, R.~Herbrich, and A.~J.~Smola,
+``A generalized representer theorem,''
+in \textit{COLT}, Springer, 2001, pp.~416--426.
+
+\bibitem{bartlett2002}
+P.~L.~Bartlett and S.~Mendelson,
+``Rademacher and Gaussian complexities: Risk bounds and structural results,''
+\textit{JMLR}, vol.~3, pp.~463--482, 2002.
 
 \end{thebibliography}
 

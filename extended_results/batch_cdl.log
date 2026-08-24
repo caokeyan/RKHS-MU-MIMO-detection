@@ -1,0 +1,519 @@
+START 22:36:17
+
+==== realistic channel=cdl_a scen=soft_clip (16-QAM) ====
+  [soft_clip_cdl_a] H1 channel=cdl_a ||H||_F=71.554
+  [soft_clip_cdl_a/H1/2 SNR=   0] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   0] MLD            完成  BER=4.275e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   0] MMSE+LS        完成  BER=4.537e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+
+===== RESTART 2026-08-24 22:39:19 =====
+
+===== START 2026-08-24 22:39:50 =====
+LAUNCH channel=cdl_a 22:39:50
+
+==== realistic channel=cdl_a scen=soft_clip (16-QAM) ====
+  [soft_clip_cdl_a] H1 channel=cdl_a ||H||_F=71.554
+  [soft_clip_cdl_a/H1/2 SNR=   0] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   0] MLD            完成  BER=3.957e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   0] MMSE+LS        完成  BER=4.286e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS(z_rob)    完成  BER=4.340e-01   128.9s  n_center=2200 α=approx_hard_mkl+mkl_struct_hat_robust trSER=0.824
+  [soft_clip_cdl_a/H1/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS Oracle    完成  BER=3.961e-01     5.5s  n_center=2200 approx_fstar_struct γ=4.72e-02 MSE_te=2.10e-06
+  [soft_clip_cdl_a] H1 SNR=0 MLD=3.957e-01 Oracle=3.961e-01 RKHS=4.340e-01 MMSE=4.286e-01 gain=-1.3% dt=136.5s
+  [soft_clip_cdl_a/H1/2 SNR=   4] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   4] MLD            完成  BER=4.012e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   4] MMSE+LS        完成  BER=4.341e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS(z_rob)    完成  BER=4.173e-01    98.2s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.07+nn:0.93+diag:0.00]_struct_hat_robust trSER=0.832
+  [soft_clip_cdl_a/H1/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS Oracle    完成  BER=4.014e-01     5.3s  n_center=2200 approx_fstar_struct γ=3.15e-02 MSE_te=2.60e-06
+  [soft_clip_cdl_a] H1 SNR=4 MLD=4.012e-01 Oracle=4.014e-01 RKHS=4.173e-01 MMSE=4.341e-01 gain=+3.9% dt=105.7s
+  [soft_clip_cdl_a/H1/2 SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   8] MLD            完成  BER=4.145e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   8] MMSE+LS        完成  BER=4.211e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS(z_rob)    完成  BER=4.248e-01   153.2s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.02+nn:0.98+diag:0.00]_struct_hat_robust+stack2 trSER=0.816
+  [soft_clip_cdl_a/H1/2 SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS Oracle    完成  BER=4.143e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.86e-02 MSE_te=3.00e-06
+  [soft_clip_cdl_a] SNR=8 retry lam=0.030 (BER_rkhs=4.248e-01, MMSE=4.211e-01)
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] MLD            完成  BER=4.145e-01     0.0s
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] MMSE+LS        完成  BER=4.176e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS(z_rob)    完成  BER=4.297e-01   149.4s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust+stack2 trSER=0.797
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS Oracle    完成  BER=4.146e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.92e-02 MSE_te=3.09e-06
+  [soft_clip_cdl_a] SNR=8 retry lam=0.050 (BER_rkhs=4.248e-01, MMSE=4.211e-01)
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] MLD            完成  BER=4.145e-01     0.0s
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] MMSE+LS        完成  BER=4.099e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS(z_rob)    完成  BER=4.291e-01   112.4s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:1.00+diag:0.00]_struct_hat_robust+stack2 trSER=0.809
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS Oracle    完成  BER=4.143e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.78e-02 MSE_te=2.93e-06
+  [soft_clip_cdl_a] SNR=8 retry lam=0.080 (BER_rkhs=4.248e-01, MMSE=4.211e-01)
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] MLD            完成  BER=4.145e-01     0.0s
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] MMSE+LS        完成  BER=4.201e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS(z_rob)    完成  BER=4.176e-01   162.1s  n_center=1800 α=approx_hard_proj[mkl:0.56+bag1:0.00+nn:0.44+diag:0.00]_struct_hat_robust trSER=0.813
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS Oracle    完成  BER=4.143e-01     2.8s  n_center=1800 approx_fstar_struct γ=2.09e-02 MSE_te=3.59e-06
+  [soft_clip_cdl_a] SNR=8 retry lam=0.120 (BER_rkhs=4.248e-01, MMSE=4.211e-01)
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] MLD            完成  BER=4.145e-01     0.0s
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] MMSE+LS        完成  BER=4.159e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS(z_rob)    完成  BER=4.200e-01    81.3s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.04+nn:0.96+diag:0.00]_struct_hat_robust trSER=0.812
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2-retry SNR=   8] RKHS Oracle    完成  BER=4.145e-01     3.0s  n_center=1800 approx_fstar_struct γ=1.81e-02 MSE_te=3.98e-06
+  [soft_clip_cdl_a] H1 SNR=8 MLD=4.145e-01 Oracle=4.143e-01 RKHS=4.176e-01 MMSE=4.201e-01 gain=+0.6% dt=684.9s
+  [soft_clip_cdl_a/H1/2 SNR=  12] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=  12] MLD            完成  BER=4.266e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=  12] MMSE+LS        完成  BER=4.195e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+[soft_clip_cdl_a/H1/2] RKHS(z_rob) @ SNR=12 dB 异常: BER=4.163e-01 trSER=0.837 t=97.6s （检查 L-BFGS / n_center / Adam best）
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS(z_rob)    完成  BER=4.163e-01    97.6s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.837
+  [soft_clip_cdl_a/H1/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS Oracle    完成  BER=4.268e-01     3.0s  n_center=1800 approx_fstar_struct γ=1.39e-02 MSE_te=1.91e-06
+  [soft_clip_cdl_a] SNR=12 retry lam=0.015 (BER_rkhs=4.163e-01, MMSE=4.195e-01)
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] 开始六方法…
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] MLD            完成  BER=4.266e-01     0.0s
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] MMSE+LS        完成  BER=4.182e-01     0.1s  MC×5
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+[soft_clip_cdl_a/H1/2-retry] RKHS(z_rob) @ SNR=12 dB 异常: BER=4.212e-01 trSER=0.841 t=55.9s （检查 L-BFGS / n_center / Adam best）
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS(z_rob)    完成  BER=4.212e-01    55.9s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.841
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS Oracle    完成  BER=4.265e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.30e-02 MSE_te=1.19e-06
+  [soft_clip_cdl_a] SNR=12 retry lam=0.025 (BER_rkhs=4.163e-01, MMSE=4.195e-01)
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] 开始六方法…
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] MLD            完成  BER=4.266e-01     0.0s
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] MMSE+LS        完成  BER=4.169e-01     0.1s  MC×5
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+[soft_clip_cdl_a/H1/2-retry] RKHS(z_rob) @ SNR=12 dB 异常: BER=4.164e-01 trSER=0.838 t=70.8s （检查 L-BFGS / n_center / Adam best）
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS(z_rob)    完成  BER=4.164e-01    70.8s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.838
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS Oracle    完成  BER=4.267e-01     2.9s  n_center=1800 approx_fstar_struct γ=1.38e-02 MSE_te=2.03e-06
+  [soft_clip_cdl_a] SNR=12 retry lam=0.040 (BER_rkhs=4.163e-01, MMSE=4.195e-01)
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] 开始六方法…
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] MLD            完成  BER=4.266e-01     0.0s
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] MMSE+LS        完成  BER=4.158e-01     0.1s  MC×5
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+[soft_clip_cdl_a/H1/2-retry] RKHS(z_rob) @ SNR=12 dB 异常: BER=4.158e-01 trSER=0.840 t=97.9s （检查 L-BFGS / n_center / Adam best）
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS(z_rob)    完成  BER=4.158e-01    97.9s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.840
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS Oracle    完成  BER=4.266e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.33e-02 MSE_te=1.61e-06
+  [soft_clip_cdl_a] SNR=12 retry lam=0.060 (BER_rkhs=4.163e-01, MMSE=4.195e-01)
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] 开始六方法…
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] MLD            完成  BER=4.266e-01     0.0s
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] MMSE+LS        完成  BER=4.200e-01     0.1s  MC×5
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+[soft_clip_cdl_a/H1/2-retry] RKHS(z_rob) @ SNR=12 dB 异常: BER=4.173e-01 trSER=0.842 t=96.5s （检查 L-BFGS / n_center / Adam best）
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS(z_rob)    完成  BER=4.173e-01    96.5s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.01+nn:0.99+diag:0.00]_struct_hat_robust trSER=0.842
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2-retry SNR=  12] RKHS Oracle    完成  BER=4.269e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.27e-02 MSE_te=1.76e-06
+  [soft_clip_cdl_a] H1 SNR=12 MLD=4.266e-01 Oracle=4.268e-01 RKHS=4.163e-01 MMSE=4.195e-01 gain=+0.8% dt=438.2s
+  [soft_clip_cdl_a] H2 channel=cdl_a ||H||_F=71.554
+  [soft_clip_cdl_a/H2/2 SNR=   0] 开始六方法…
+  [soft_clip_cdl_a/H2/2 SNR=   0] MLD            完成  BER=4.158e-01     0.0s
+  [soft_clip_cdl_a/H2/2 SNR=   0] MMSE+LS        完成  BER=4.669e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H2/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+
+===== OPT_RESTART 2026-08-24 23:04:06 收紧λ重试后重跑 =====
+
+===== START 2026-08-24 23:04:06 =====
+LAUNCH channel=cdl_a 23:04:06
+
+==== realistic channel=cdl_a scen=soft_clip (16-QAM) ====
+  [soft_clip_cdl_a] H1 channel=cdl_a ||H||_F=71.554
+  [soft_clip_cdl_a/H1/2 SNR=   0] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   0] MLD            完成  BER=4.008e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   0] MMSE+LS        完成  BER=4.480e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS(z_rob)    完成  BER=4.538e-01   141.4s  n_center=2200 α=approx_hard_proj[mkl:0.29+bag1:0.31+nn:0.13+diag:0.27]_struct_hat_robust trSER=0.847
+  [soft_clip_cdl_a/H1/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS Oracle    完成  BER=4.009e-01     5.5s  n_center=2200 approx_fstar_struct γ=4.89e-02 MSE_te=1.04e-06
+  [soft_clip_cdl_a] H1 SNR=0 MLD=4.008e-01 Oracle=4.009e-01 RKHS=4.538e-01 MMSE=4.480e-01 gain=-1.3% dt=149.2s
+  [soft_clip_cdl_a/H1/2 SNR=   4] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   4] MLD            完成  BER=4.093e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   4] MMSE+LS        完成  BER=4.604e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS(z_rob)    完成  BER=4.486e-01   143.1s  n_center=2200 α=approx_hard_mkl+diag_struct_hat_robust trSER=0.842
+  [soft_clip_cdl_a/H1/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS Oracle    完成  BER=4.093e-01     5.1s  n_center=2200 approx_fstar_struct γ=2.93e-02 MSE_te=1.11e-06
+  [soft_clip_cdl_a] H1 SNR=4 MLD=4.093e-01 Oracle=4.093e-01 RKHS=4.486e-01 MMSE=4.604e-01 gain=+2.6% dt=150.4s
+  [soft_clip_cdl_a/H1/2 SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   8] MLD            完成  BER=4.091e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   8] MMSE+LS        完成  BER=4.506e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS(z_rob)    完成  BER=4.593e-01    99.1s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:1.00+diag:0.00]_struct_hat_robust+stack2 trSER=0.821
+  [soft_clip_cdl_a/H1/2 SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS Oracle    完成  BER=4.095e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.97e-02 MSE_te=5.75e-07
+  [soft_clip_cdl_a] H1 SNR=8 MLD=4.091e-01 Oracle=4.095e-01 RKHS=4.593e-01 MMSE=4.506e-01 gain=-1.9% dt=105.1s
+  [soft_clip_cdl_a/H1/2 SNR=  12] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=  12] MLD            完成  BER=4.143e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=  12] MMSE+LS        完成  BER=4.402e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+[soft_clip_cdl_a/H1/2] RKHS(z_rob) @ SNR=12 dB 异常: BER=4.515e-01 trSER=0.860 t=66.7s （检查 L-BFGS / n_center / Adam best）
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS(z_rob)    完成  BER=4.515e-01    66.7s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.860
+  [soft_clip_cdl_a/H1/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS Oracle    完成  BER=4.147e-01     2.9s  n_center=1800 approx_fstar_struct γ=1.26e-02 MSE_te=1.36e-06
+  [soft_clip_cdl_a] H1 SNR=12 MLD=4.143e-01 Oracle=4.147e-01 RKHS=4.515e-01 MMSE=4.402e-01 gain=-2.6% dt=70.7s
+  [soft_clip_cdl_a] H2 channel=cdl_a ||H||_F=71.554
+  [soft_clip_cdl_a/H2/2 SNR=   0] 开始六方法…
+  [soft_clip_cdl_a/H2/2 SNR=   0] MLD            完成  BER=4.104e-01     0.0s
+  [soft_clip_cdl_a/H2/2 SNR=   0] MMSE+LS        完成  BER=4.454e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H2/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   0] RKHS(z_rob)    完成  BER=4.568e-01   130.9s  n_center=2200 α=approx_hard_mkl+mkl_struct_hat_robust trSER=0.843
+  [soft_clip_cdl_a/H2/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H2/2 SNR=   0] RKHS Oracle    完成  BER=4.106e-01     5.3s  n_center=2200 approx_fstar_struct γ=4.88e-02 MSE_te=4.38e-07
+  [soft_clip_cdl_a] H2 SNR=0 MLD=4.104e-01 Oracle=4.106e-01 RKHS=4.568e-01 MMSE=4.454e-01 gain=-2.6% dt=138.2s
+  [soft_clip_cdl_a/H2/2 SNR=   4] 开始六方法…
+  [soft_clip_cdl_a/H2/2 SNR=   4] MLD            完成  BER=4.226e-01     0.0s
+  [soft_clip_cdl_a/H2/2 SNR=   4] MMSE+LS        完成  BER=4.405e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H2/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   4] RKHS(z_rob)    完成  BER=4.581e-01   125.2s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.61+nn:0.39+diag:0.00]_struct_hat_robust trSER=0.840
+  [soft_clip_cdl_a/H2/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H2/2 SNR=   4] RKHS Oracle    完成  BER=4.228e-01     5.4s  n_center=2200 approx_fstar_struct γ=3.23e-02 MSE_te=2.02e-06
+  [soft_clip_cdl_a] H2 SNR=4 MLD=4.226e-01 Oracle=4.228e-01 RKHS=4.581e-01 MMSE=4.405e-01 gain=-4.0% dt=132.6s
+  [soft_clip_cdl_a/H2/2 SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H2/2 SNR=   8] MLD            完成  BER=4.289e-01     0.0s
+  [soft_clip_cdl_a/H2/2 SNR=   8] MMSE+LS        完成  BER=4.355e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H2/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+
+===== CDL_FIX_RESTART 2026-08-24 23:16:58 每用户随机 bs_orientation =====
+
+===== START 2026-08-24 23:17:00 =====
+LAUNCH channel=cdl_a 23:17:00
+
+==== realistic channel=cdl_a scen=soft_clip (16-QAM) ====
+  [soft_clip_cdl_a] H1 channel=cdl_a ||H||_F=71.554
+  [soft_clip_cdl_a/H1/2 SNR=   0] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   0] MLD            完成  BER=3.168e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   0] MMSE+LS        完成  BER=3.775e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS(z_rob)    完成  BER=3.328e-01   128.4s  n_center=2200 α=approx_hard_mkl+mkl_struct_hat_robust trSER=0.725
+  [soft_clip_cdl_a/H1/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   0] RKHS Oracle    完成  BER=3.168e-01     5.4s  n_center=2200 approx_fstar_struct γ=4.01e-02 MSE_te=3.85e-07
+  [soft_clip_cdl_a] H1 SNR=0 MLD=3.168e-01 Oracle=3.168e-01 RKHS=3.328e-01 MMSE=3.775e-01 gain=+11.8% dt=135.9s
+  [soft_clip_cdl_a/H1/2 SNR=   4] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   4] MLD            完成  BER=3.167e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   4] MMSE+LS        完成  BER=3.540e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS(z_rob)    完成  BER=3.127e-01   219.3s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.17+nn:0.32+diag:0.52]_struct_hat_robust trSER=0.706
+  [soft_clip_cdl_a/H1/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   4] RKHS Oracle    完成  BER=3.167e-01     5.1s  n_center=2200 approx_fstar_struct γ=2.59e-02 MSE_te=7.39e-07
+  [soft_clip_cdl_a] H1 SNR=4 MLD=3.167e-01 Oracle=3.167e-01 RKHS=3.127e-01 MMSE=3.540e-01 gain=+11.7% dt=226.5s
+  [soft_clip_cdl_a/H1/2 SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=   8] MLD            完成  BER=3.174e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=   8] MMSE+LS        完成  BER=3.456e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS(z_rob)    完成  BER=2.881e-01    76.1s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.13+nn:0.87+diag:0.00]_struct_hat_robust+stack2 trSER=0.667
+  [soft_clip_cdl_a/H1/2 SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=   8] RKHS Oracle    完成  BER=3.174e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.56e-02 MSE_te=1.67e-07
+  [soft_clip_cdl_a] H1 SNR=8 MLD=3.174e-01 Oracle=3.174e-01 RKHS=2.881e-01 MMSE=3.456e-01 gain=+16.6% dt=82.0s
+  [soft_clip_cdl_a/H1/2 SNR=  12] 开始六方法…
+  [soft_clip_cdl_a/H1/2 SNR=  12] MLD            完成  BER=3.170e-01     0.0s
+  [soft_clip_cdl_a/H1/2 SNR=  12] MMSE+LS        完成  BER=3.278e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+[soft_clip_cdl_a/H1/2] RKHS(z_rob) @ SNR=12 dB 异常: BER=2.421e-01 trSER=0.645 t=48.0s （检查 L-BFGS / n_center / Adam best）
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS(z_rob)    完成  BER=2.421e-01    48.0s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.645
+  [soft_clip_cdl_a/H1/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H1/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H1/2 SNR=  12] RKHS Oracle    完成  BER=3.171e-01     3.0s  n_center=1800 approx_fstar_struct γ=9.50e-03 MSE_te=1.78e-07
+  [soft_clip_cdl_a] H1 SNR=12 MLD=3.170e-01 Oracle=3.171e-01 RKHS=2.421e-01 MMSE=3.278e-01 gain=+26.2% dt=52.0s
+  [soft_clip_cdl_a] H2 channel=cdl_a ||H||_F=71.554
+  [soft_clip_cdl_a/H2/2 SNR=   0] 开始六方法…
+  [soft_clip_cdl_a/H2/2 SNR=   0] MLD            完成  BER=2.954e-01     0.0s
+  [soft_clip_cdl_a/H2/2 SNR=   0] MMSE+LS        完成  BER=3.637e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H2/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   0] RKHS(z_rob)    完成  BER=3.393e-01   130.9s  n_center=2200 α=approx_hard_proj[mkl:0.29+bag1:0.30+nn:0.15+diag:0.26]_struct_hat_robust trSER=0.765
+  [soft_clip_cdl_a/H2/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H2/2 SNR=   0] RKHS Oracle    完成  BER=2.954e-01     5.2s  n_center=2200 approx_fstar_struct γ=3.96e-02 MSE_te=2.40e-07
+  [soft_clip_cdl_a] H2 SNR=0 MLD=2.954e-01 Oracle=2.954e-01 RKHS=3.393e-01 MMSE=3.637e-01 gain=+6.7% dt=138.2s
+  [soft_clip_cdl_a/H2/2 SNR=   4] 开始六方法…
+  [soft_clip_cdl_a/H2/2 SNR=   4] MLD            完成  BER=2.939e-01     0.0s
+  [soft_clip_cdl_a/H2/2 SNR=   4] MMSE+LS        完成  BER=3.350e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H2/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   4] RKHS(z_rob)    完成  BER=2.888e-01   129.2s  n_center=2200 α=approx_hard_proj[mkl:0.12+bag1:0.32+nn:0.20+diag:0.36]_struct_hat_robust trSER=0.703
+  [soft_clip_cdl_a/H2/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H2/2 SNR=   4] RKHS Oracle    完成  BER=2.939e-01     5.2s  n_center=2200 approx_fstar_struct γ=2.49e-02 MSE_te=1.69e-07
+  [soft_clip_cdl_a] H2 SNR=4 MLD=2.939e-01 Oracle=2.939e-01 RKHS=2.888e-01 MMSE=3.350e-01 gain=+13.8% dt=136.5s
+  [soft_clip_cdl_a/H2/2 SNR=   8] 开始六方法…
+  [soft_clip_cdl_a/H2/2 SNR=   8] MLD            完成  BER=2.956e-01     0.0s
+  [soft_clip_cdl_a/H2/2 SNR=   8] MMSE+LS        完成  BER=3.159e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H2/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   8] RKHS(z_rob)    完成  BER=2.367e-01    75.2s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:1.00+diag:0.00]_struct_hat_robust+stack2 trSER=0.614
+  [soft_clip_cdl_a/H2/2 SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H2/2 SNR=   8] RKHS Oracle    完成  BER=2.955e-01     2.8s  n_center=1800 approx_fstar_struct γ=1.55e-02 MSE_te=2.11e-07
+  [soft_clip_cdl_a] H2 SNR=8 MLD=2.956e-01 Oracle=2.955e-01 RKHS=2.367e-01 MMSE=3.159e-01 gain=+25.1% dt=81.1s
+  [soft_clip_cdl_a/H2/2 SNR=  12] 开始六方法…
+  [soft_clip_cdl_a/H2/2 SNR=  12] MLD            完成  BER=2.934e-01     0.0s
+  [soft_clip_cdl_a/H2/2 SNR=  12] MMSE+LS        完成  BER=3.034e-01     0.0s  MC×3
+  [soft_clip_cdl_a/H2/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+[soft_clip_cdl_a/H2/2] RKHS(z_rob) @ SNR=12 dB 异常: BER=1.793e-01 trSER=0.553 t=48.9s （检查 L-BFGS / n_center / Adam best）
+  [soft_clip_cdl_a/H2/2 SNR=  12] RKHS(z_rob)    完成  BER=1.793e-01    48.9s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:1.00+diag:0.00]_struct_hat_robust trSER=0.553
+  [soft_clip_cdl_a/H2/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [soft_clip_cdl_a/H2/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [soft_clip_cdl_a/H2/2 SNR=  12] RKHS Oracle    完成  BER=2.935e-01     3.0s  n_center=1800 approx_fstar_struct γ=9.70e-03 MSE_te=7.74e-08
+  [soft_clip_cdl_a] H2 SNR=12 MLD=2.934e-01 Oracle=2.935e-01 RKHS=1.793e-01 MMSE=3.034e-01 gain=+40.9% dt=52.9s
+
+==== realistic channel=cdl_a scen=hard_clip (16-QAM) ====
+  [hard_clip_cdl_a] H1 channel=cdl_a ||H||_F=71.554
+  [hard_clip_cdl_a/H1/2 SNR=   0] 开始六方法…
+  [hard_clip_cdl_a/H1/2 SNR=   0] MLD            完成  BER=3.867e-02     0.0s
+  [hard_clip_cdl_a/H1/2 SNR=   0] MMSE+LS        完成  BER=3.197e-01     0.0s  MC×3
+  [hard_clip_cdl_a/H1/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   0] RKHS(z_rob)    完成  BER=3.003e-01   136.0s  n_center=2200 α=approx_hard_mkl+diag_struct_hat_robust trSER=0.710
+  [hard_clip_cdl_a/H1/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H1/2 SNR=   0] RKHS Oracle    完成  BER=3.933e-02     6.1s  n_center=2200 approx_fstar_struct γ=3.69e-02 MSE_te=4.22e-06
+  [hard_clip_cdl_a] H1 SNR=0 MLD=3.867e-02 Oracle=3.933e-02 RKHS=3.003e-01 MMSE=3.197e-01 gain=+6.1% dt=144.7s
+  [hard_clip_cdl_a/H1/2 SNR=   4] 开始六方法…
+  [hard_clip_cdl_a/H1/2 SNR=   4] MLD            完成  BER=2.125e-02     0.0s
+  [hard_clip_cdl_a/H1/2 SNR=   4] MMSE+LS        完成  BER=2.652e-01     0.0s  MC×3
+  [hard_clip_cdl_a/H1/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   4] RKHS(z_rob)    完成  BER=2.305e-01    91.1s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.17+nn:0.43+diag:0.41]_struct_hat_robust trSER=0.638
+  [hard_clip_cdl_a/H1/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H1/2 SNR=   4] RKHS Oracle    完成  BER=2.192e-02     5.6s  n_center=2200 approx_fstar_struct γ=2.24e-02 MSE_te=7.66e-06
+  [hard_clip_cdl_a] H1 SNR=4 MLD=2.125e-02 Oracle=2.192e-02 RKHS=2.305e-01 MMSE=2.652e-01 gain=+13.1% dt=98.8s
+  [hard_clip_cdl_a/H1/2 SNR=   8] 开始六方法…
+  [hard_clip_cdl_a/H1/2 SNR=   8] MLD            完成  BER=1.467e-02     0.0s
+  [hard_clip_cdl_a/H1/2 SNR=   8] MMSE+LS        完成  BER=1.999e-01     0.0s  MC×3
+  [hard_clip_cdl_a/H1/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+
+===== PARALLEL_RESTART 2026-08-24 23:38:11 A=hard+linear C=full =====
+
+==== realistic channel=cdl_a scen=hard_clip (16-QAM) ====
+  [hard_clip_cdl_a] H1 channel=cdl_a ||H||_F=71.554
+  [hard_clip_cdl_a/H1/2 SNR=   0] 开始六方法…
+  [hard_clip_cdl_a/H1/2 SNR=   0] MLD            完成  BER=1.967e-02     0.0s
+  [hard_clip_cdl_a/H1/2 SNR=   0] MMSE+LS        完成  BER=3.298e-01     0.0s  MC×3
+  [hard_clip_cdl_a/H1/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+===== A_RESUME 23:38:54 =====
+
+==== realistic channel=cdl_a scen=hard_clip (16-QAM) ====
+  [hard_clip_cdl_a] H1 channel=cdl_a ||H||_F=71.554
+  [hard_clip_cdl_a/H1/2 SNR=   0] 开始六方法…
+  [hard_clip_cdl_a/H1/2 SNR=   0] MLD            完成  BER=2.492e-02     0.0s
+  [hard_clip_cdl_a/H1/2 SNR=   0] MMSE+LS        完成  BER=3.291e-01     0.0s  MC×3
+  [hard_clip_cdl_a/H1/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   0] RKHS(z_rob)    完成  BER=3.003e-01   209.4s  n_center=2200 α=approx_hard_mkl+diag_struct_hat_robust trSER=0.682
+  [hard_clip_cdl_a/H1/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H1/2 SNR=   0] RKHS Oracle    完成  BER=2.542e-02     6.7s  n_center=2200 approx_fstar_struct γ=3.57e-02 MSE_te=5.83e-06
+  [hard_clip_cdl_a] H1 SNR=0 MLD=2.492e-02 Oracle=2.542e-02 RKHS=3.003e-01 MMSE=3.291e-01 gain=+8.7% dt=218.6s
+  [hard_clip_cdl_a/H1/2 SNR=   4] 开始六方法…
+  [hard_clip_cdl_a/H1/2 SNR=   4] MLD            完成  BER=1.125e-02     0.0s
+  [hard_clip_cdl_a/H1/2 SNR=   4] MMSE+LS        完成  BER=2.762e-01     0.0s  MC×3
+  [hard_clip_cdl_a/H1/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   4] RKHS(z_rob)    完成  BER=2.278e-01   180.0s  n_center=2200 α=approx_hard_proj[mkl:0.01+bag1:0.00+nn:0.49+diag:0.49]_struct_hat_robust trSER=0.615
+  [hard_clip_cdl_a/H1/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H1/2 SNR=   4] RKHS Oracle    完成  BER=1.158e-02     6.5s  n_center=2200 approx_fstar_struct γ=2.25e-02 MSE_te=1.70e-05
+  [hard_clip_cdl_a] H1 SNR=4 MLD=1.125e-02 Oracle=1.158e-02 RKHS=2.278e-01 MMSE=2.762e-01 gain=+17.5% dt=188.9s
+  [hard_clip_cdl_a/H1/2 SNR=   8] 开始六方法…
+  [hard_clip_cdl_a/H1/2 SNR=   8] MLD            完成  BER=6.667e-03     0.0s
+  [hard_clip_cdl_a/H1/2 SNR=   8] MMSE+LS        完成  BER=1.924e-01     0.1s  MC×3
+  [hard_clip_cdl_a/H1/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   8] RKHS(z_rob)    完成  BER=1.526e-01   122.8s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.26+nn:0.74+diag:0.00]_struct_hat_robust trSER=0.479
+  [hard_clip_cdl_a/H1/2 SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H1/2 SNR=   8] RKHS Oracle    完成  BER=7.333e-03     3.7s  n_center=1800 approx_fstar_struct γ=1.38e-02 MSE_te=2.88e-05
+  [hard_clip_cdl_a] H1 SNR=8 MLD=6.667e-03 Oracle=7.333e-03 RKHS=1.526e-01 MMSE=1.924e-01 gain=+20.7% dt=128.6s
+  [hard_clip_cdl_a/H1/2 SNR=  12] 开始六方法…
+  [hard_clip_cdl_a/H1/2 SNR=  12] MLD            完成  BER=5.583e-03     0.0s
+  [hard_clip_cdl_a/H1/2 SNR=  12] MMSE+LS        完成  BER=1.000e-01     0.1s  MC×3
+  [hard_clip_cdl_a/H1/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=  12] RKHS(z_rob)    完成  BER=7.792e-02    85.7s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.278
+  [hard_clip_cdl_a/H1/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H1/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H1/2 SNR=  12] RKHS Oracle    完成  BER=7.917e-03     3.7s  n_center=1800 approx_fstar_struct γ=8.51e-03 MSE_te=1.02e-03
+  [hard_clip_cdl_a] H1 SNR=12 MLD=5.583e-03 Oracle=7.917e-03 RKHS=7.792e-02 MMSE=1.000e-01 gain=+22.1% dt=90.6s
+  [hard_clip_cdl_a] H2 channel=cdl_a ||H||_F=71.554
+  [hard_clip_cdl_a/H2/2 SNR=   0] 开始六方法…
+  [hard_clip_cdl_a/H2/2 SNR=   0] MLD            完成  BER=1.033e-02     0.0s
+  [hard_clip_cdl_a/H2/2 SNR=   0] MMSE+LS        完成  BER=3.010e-01     0.1s  MC×3
+  [hard_clip_cdl_a/H2/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H2/2 SNR=   0] RKHS(z_rob)    完成  BER=2.782e-01   184.4s  n_center=2200 α=approx_hard_mkl+mkl_struct_hat_robust trSER=0.688
+  [hard_clip_cdl_a/H2/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H2/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H2/2 SNR=   0] RKHS Oracle    完成  BER=1.092e-02     6.7s  n_center=2200 approx_fstar_struct γ=3.66e-02 MSE_te=1.04e-05
+  [hard_clip_cdl_a] H2 SNR=0 MLD=1.033e-02 Oracle=1.092e-02 RKHS=2.782e-01 MMSE=3.010e-01 gain=+7.6% dt=193.6s
+  [hard_clip_cdl_a/H2/2 SNR=   4] 开始六方法…
+  [hard_clip_cdl_a/H2/2 SNR=   4] MLD            完成  BER=3.333e-03     0.0s
+  [hard_clip_cdl_a/H2/2 SNR=   4] MMSE+LS        完成  BER=2.144e-01     0.1s  MC×3
+  [hard_clip_cdl_a/H2/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H2/2 SNR=   4] RKHS(z_rob)    完成  BER=1.745e-01   209.9s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.16+nn:0.38+diag:0.45]_struct_hat_robust trSER=0.530
+  [hard_clip_cdl_a/H2/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H2/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H2/2 SNR=   4] RKHS Oracle    完成  BER=3.833e-03     7.0s  n_center=2200 approx_fstar_struct γ=2.28e-02 MSE_te=2.00e-05
+  [hard_clip_cdl_a] H2 SNR=4 MLD=3.333e-03 Oracle=3.833e-03 RKHS=1.745e-01 MMSE=2.144e-01 gain=+18.6% dt=219.5s
+  [hard_clip_cdl_a/H2/2 SNR=   8] 开始六方法…
+  [hard_clip_cdl_a/H2/2 SNR=   8] MLD            完成  BER=2.583e-03     0.0s
+  [hard_clip_cdl_a/H2/2 SNR=   8] MMSE+LS        完成  BER=1.260e-01     0.1s  MC×3
+  [hard_clip_cdl_a/H2/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H2/2 SNR=   8] RKHS(z_rob)    完成  BER=9.408e-02   136.5s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.29+nn:0.38+diag:0.33]_struct_hat_robust+stack2 trSER=0.296
+  [hard_clip_cdl_a/H2/2 SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H2/2 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H2/2 SNR=   8] RKHS Oracle    完成  BER=2.167e-03     3.6s  n_center=1800 approx_fstar_struct γ=1.44e-02 MSE_te=3.01e-05
+  [hard_clip_cdl_a] H2 SNR=8 MLD=2.583e-03 Oracle=2.167e-03 RKHS=9.408e-02 MMSE=1.260e-01 gain=+25.3% dt=144.0s
+  [hard_clip_cdl_a/H2/2 SNR=  12] 开始六方法…
+  [hard_clip_cdl_a/H2/2 SNR=  12] MLD            完成  BER=1.833e-03     0.0s
+  [hard_clip_cdl_a/H2/2 SNR=  12] MMSE+LS        完成  BER=5.747e-02     0.1s  MC×3
+  [hard_clip_cdl_a/H2/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H2/2 SNR=  12] RKHS(z_rob)    完成  BER=2.833e-02    81.0s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.082
+  [hard_clip_cdl_a/H2/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [hard_clip_cdl_a/H2/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [hard_clip_cdl_a/H2/2 SNR=  12] RKHS Oracle    完成  BER=1.667e-03     3.6s  n_center=1800 approx_fstar_struct γ=8.91e-03 MSE_te=4.92e-04
+  [hard_clip_cdl_a] H2 SNR=12 MLD=1.833e-03 Oracle=1.667e-03 RKHS=2.833e-02 MMSE=5.747e-02 gain=+50.7% dt=85.9s
+
+==== realistic channel=cdl_a scen=linear (16-QAM) ====
+  [linear_cdl_a] H1 channel=cdl_a ||H||_F=71.554
+  [linear_cdl_a/H1/2 SNR=   0] 开始六方法…
+  [linear_cdl_a/H1/2 SNR=   0] MLD            完成  BER=1.033e-02     0.0s
+  [linear_cdl_a/H1/2 SNR=   0] MMSE+LS        完成  BER=3.103e-01     0.0s  MC×3
+  [linear_cdl_a/H1/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2 SNR=   0] RKHS(z_rob)    完成  BER=2.903e-01   190.4s  n_center=2200 α=approx_hard_proj[mkl:0.27+bag1:0.22+nn:0.20+diag:0.30]_struct_hat_robust trSER=0.684
+  [linear_cdl_a/H1/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H1/2 SNR=   0] RKHS Oracle    完成  BER=1.025e-02     6.6s  n_center=2200 approx_fstar_struct γ=3.64e-02 MSE_te=3.62e-06
+  [linear_cdl_a] H1 SNR=0 MLD=1.033e-02 Oracle=1.025e-02 RKHS=2.903e-01 MMSE=3.103e-01 gain=+6.5% dt=199.6s
+  [linear_cdl_a/H1/2 SNR=   4] 开始六方法…
+  [linear_cdl_a/H1/2 SNR=   4] MLD            完成  BER=1.667e-04     0.0s
+  [linear_cdl_a/H1/2 SNR=   4] MMSE+LS        完成  BER=2.424e-01     0.0s  MC×3
+  [linear_cdl_a/H1/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2 SNR=   4] RKHS(z_rob)    完成  BER=2.323e-01   142.6s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.04+nn:0.47+diag:0.48]_struct_hat_robust trSER=0.623
+  [linear_cdl_a/H1/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H1/2 SNR=   4] RKHS Oracle    完成  BER=2.500e-04     5.9s  n_center=2200 approx_fstar_struct γ=2.28e-02 MSE_te=2.27e-06
+  [linear_cdl_a] H1 SNR=4 MLD=1.667e-04 Oracle=2.500e-04 RKHS=2.323e-01 MMSE=2.424e-01 gain=+4.2% dt=150.9s
+  [linear_cdl_a/H1/2 SNR=   8] 开始六方法…
+  [linear_cdl_a/H1/2 SNR=   8] MLD            完成  BER=0.000e+00     0.0s
+  [linear_cdl_a/H1/2 SNR=   8] MMSE+LS        完成  BER=1.810e-01     0.0s  MC×3
+  [linear_cdl_a/H1/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2 SNR=   8] RKHS(z_rob)    完成  BER=1.761e-01   151.7s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:1.00+diag:0.00]_struct_hat_robust+stack2 trSER=0.515
+  [linear_cdl_a/H1/2 SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H1/2 SNR=   8] RKHS Oracle    完成  BER=0.000e+00     3.6s  n_center=1800 approx_fstar_struct γ=1.42e-02 MSE_te=6.51e-15
+  [linear_cdl_a] H1 SNR=8 MLD=0.000e+00 Oracle=0.000e+00 RKHS=1.761e-01 MMSE=1.810e-01 gain=+2.7% dt=159.2s
+  [linear_cdl_a/H1/2 SNR=  12] 开始六方法…
+  [linear_cdl_a/H1/2 SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear_cdl_a/H1/2 SNR=  12] MMSE+LS        完成  BER=8.906e-02     0.0s  MC×3
+  [linear_cdl_a/H1/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2 SNR=  12] RKHS(z_rob)    完成  BER=1.051e-01    83.2s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.356
+  [linear_cdl_a/H1/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H1/2 SNR=  12] RKHS Oracle    完成  BER=0.000e+00     3.6s  n_center=1800 approx_fstar_struct γ=8.70e-03 MSE_te=3.32e-31
+  [linear_cdl_a] SNR=12 retry lam=0.025 (BER_rkhs=1.051e-01, MMSE=8.906e-02)
+  [linear_cdl_a/H1/2-retry SNR=  12] 开始六方法…
+  [linear_cdl_a/H1/2-retry SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear_cdl_a/H1/2-retry SNR=  12] MMSE+LS        完成  BER=9.322e-02     0.1s  MC×5
+  [linear_cdl_a/H1/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2-retry SNR=  12] RKHS(z_rob)    完成  BER=1.062e-01    79.2s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.348
+  [linear_cdl_a/H1/2-retry SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H1/2-retry SNR=  12] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H1/2-retry SNR=  12] RKHS Oracle    完成  BER=0.000e+00     3.8s  n_center=1800 approx_fstar_struct γ=9.11e-03 MSE_te=3.55e-32
+  [linear_cdl_a] H1 SNR=12 MLD=0.000e+00 Oracle=0.000e+00 RKHS=1.062e-01 MMSE=9.322e-02 gain=-14.0% dt=172.3s
+  [linear_cdl_a] H2 channel=cdl_a ||H||_F=71.554
+  [linear_cdl_a/H2/2 SNR=   0] 开始六方法…
+  [linear_cdl_a/H2/2 SNR=   0] MLD            完成  BER=2.017e-02     0.0s
+  [linear_cdl_a/H2/2 SNR=   0] MMSE+LS        完成  BER=3.411e-01     0.0s  MC×3
+  [linear_cdl_a/H2/2 SNR=   0] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2 SNR=   0] RKHS(z_rob)    完成  BER=3.394e-01   199.6s  n_center=2200 α=approx_hard_mkl+bag1_struct_hat_robust trSER=0.738
+  [linear_cdl_a/H2/2 SNR=   0] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2 SNR=   0] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H2/2 SNR=   0] RKHS Oracle    完成  BER=2.025e-02     6.0s  n_center=2200 approx_fstar_struct γ=3.70e-02 MSE_te=2.89e-06
+  [linear_cdl_a] H2 SNR=0 MLD=2.017e-02 Oracle=2.025e-02 RKHS=3.394e-01 MMSE=3.411e-01 gain=+0.5% dt=208.2s
+  [linear_cdl_a/H2/2 SNR=   4] 开始六方法…
+  [linear_cdl_a/H2/2 SNR=   4] MLD            完成  BER=9.167e-04     0.0s
+  [linear_cdl_a/H2/2 SNR=   4] MMSE+LS        完成  BER=2.851e-01     0.0s  MC×3
+  [linear_cdl_a/H2/2 SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2 SNR=   4] RKHS(z_rob)    完成  BER=2.986e-01   180.6s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.14+nn:0.37+diag:0.49]_struct_hat_robust trSER=0.692
+  [linear_cdl_a/H2/2 SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2 SNR=   4] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H2/2 SNR=   4] RKHS Oracle    完成  BER=9.167e-04     6.7s  n_center=2200 approx_fstar_struct γ=2.28e-02 MSE_te=3.16e-06
+  [linear_cdl_a] SNR=4 retry lam=0.080 (BER_rkhs=2.986e-01, MMSE=2.851e-01)
+  [linear_cdl_a/H2/2-retry SNR=   4] 开始六方法…
+  [linear_cdl_a/H2/2-retry SNR=   4] MLD            完成  BER=9.167e-04     0.0s
+  [linear_cdl_a/H2/2-retry SNR=   4] MMSE+LS        完成  BER=2.849e-01     0.0s  MC×3
+  [linear_cdl_a/H2/2-retry SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2-retry SNR=   4] RKHS(z_rob)    完成  BER=2.983e-01   218.6s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:0.41+diag:0.59]_struct_hat_robust trSER=0.695
+  [linear_cdl_a/H2/2-retry SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2-retry SNR=   4] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H2/2-retry SNR=   4] RKHS Oracle    完成  BER=9.167e-04     6.6s  n_center=2200 approx_fstar_struct γ=2.28e-02 MSE_te=2.86e-06
+  [linear_cdl_a] SNR=4 retry lam=0.120 (BER_rkhs=2.986e-01, MMSE=2.851e-01)
+  [linear_cdl_a/H2/2-retry SNR=   4] 开始六方法…
+  [linear_cdl_a/H2/2-retry SNR=   4] MLD            完成  BER=9.167e-04     0.0s
+  [linear_cdl_a/H2/2-retry SNR=   4] MMSE+LS        完成  BER=2.809e-01     0.0s  MC×3
+  [linear_cdl_a/H2/2-retry SNR=   4] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2-retry SNR=   4] RKHS(z_rob)    完成  BER=2.972e-01   128.3s  n_center=2200 α=approx_hard_proj[mkl:0.00+bag1:0.16+nn:0.34+diag:0.50]_struct_hat_robust trSER=0.688
+  [linear_cdl_a/H2/2-retry SNR=   4] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2-retry SNR=   4] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H2/2-retry SNR=   4] RKHS Oracle    完成  BER=9.167e-04     6.4s  n_center=2200 approx_fstar_struct γ=2.28e-02 MSE_te=3.42e-06
+  [linear_cdl_a] H2 SNR=4 MLD=9.167e-04 Oracle=9.167e-04 RKHS=2.983e-01 MMSE=2.849e-01 gain=-4.7% dt=554.8s
+  [linear_cdl_a/H2/2 SNR=   8] 开始六方法…
+  [linear_cdl_a/H2/2 SNR=   8] MLD            完成  BER=0.000e+00     0.0s
+  [linear_cdl_a/H2/2 SNR=   8] MMSE+LS        完成  BER=2.149e-01     0.0s  MC×3
+  [linear_cdl_a/H2/2 SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2 SNR=   8] RKHS(z_rob)    完成  BER=2.405e-01   118.6s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:1.00+diag:0.00]_struct_hat_robust+stack2 trSER=0.607
+  [linear_cdl_a/H2/2 SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2 SNR=   8] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H2/2 SNR=   8] RKHS Oracle    完成  BER=0.000e+00     3.7s  n_center=1800 approx_fstar_struct γ=1.41e-02 MSE_te=4.76e-10
+  [linear_cdl_a] SNR=8 retry lam=0.050 (BER_rkhs=2.405e-01, MMSE=2.149e-01)
+  [linear_cdl_a/H2/2-retry SNR=   8] 开始六方法…
+  [linear_cdl_a/H2/2-retry SNR=   8] MLD            完成  BER=0.000e+00     0.0s
+  [linear_cdl_a/H2/2-retry SNR=   8] MMSE+LS        完成  BER=2.180e-01     0.0s  MC×3
+  [linear_cdl_a/H2/2-retry SNR=   8] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2-retry SNR=   8] RKHS(z_rob)    完成  BER=2.375e-01   144.3s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:1.00+diag:0.00]_struct_hat_robust+stack2 trSER=0.596
+  [linear_cdl_a/H2/2-retry SNR=   8] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2-retry SNR=   8] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H2/2-retry SNR=   8] RKHS Oracle    完成  BER=0.000e+00     3.3s  n_center=1800 approx_fstar_struct γ=1.44e-02 MSE_te=4.45e-10
+  [linear_cdl_a] H2 SNR=8 MLD=0.000e+00 Oracle=0.000e+00 RKHS=2.375e-01 MMSE=2.180e-01 gain=-8.9% dt=277.9s
+  [linear_cdl_a/H2/2 SNR=  12] 开始六方法…
+  [linear_cdl_a/H2/2 SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear_cdl_a/H2/2 SNR=  12] MMSE+LS        完成  BER=1.135e-01     0.0s  MC×3
+  [linear_cdl_a/H2/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2 SNR=  12] RKHS(z_rob)    完成  BER=1.423e-01    62.1s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+nn:1.00+diag:0.00]_struct_hat_robust trSER=0.423
+  [linear_cdl_a/H2/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H2/2 SNR=  12] RKHS Oracle    完成  BER=0.000e+00     3.7s  n_center=1800 approx_fstar_struct γ=9.01e-03 MSE_te=1.28e-31
+  [linear_cdl_a] SNR=12 retry lam=0.025 (BER_rkhs=1.423e-01, MMSE=1.135e-01)
+  [linear_cdl_a/H2/2-retry SNR=  12] 开始六方法…
+  [linear_cdl_a/H2/2-retry SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear_cdl_a/H2/2-retry SNR=  12] MMSE+LS        完成  BER=1.202e-01     0.1s  MC×5
+  [linear_cdl_a/H2/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2-retry SNR=  12] RKHS(z_rob)    完成  BER=1.423e-01    67.5s  n_center=1800 α=approx_hard_mkl+nn_struct_hat_robust trSER=0.426
+  [linear_cdl_a/H2/2-retry SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [linear_cdl_a/H2/2-retry SNR=  12] Oracle        struct(H)+f* 拟合…
+  [linear_cdl_a/H2/2-retry SNR=  12] RKHS Oracle    完成  BER=0.000e+00     3.6s  n_center=1800 approx_fstar_struct γ=8.99e-03 MSE_te=4.45e-32
+  [linear_cdl_a] H2 SNR=12 MLD=0.000e+00 Oracle=0.000e+00 RKHS=1.423e-01 MMSE=1.202e-01 gain=-18.4% dt=139.4s
+[gallery] saved extended_results/qam16/ch_cdl_a/gallery_cdl_a.png
+EXIT_A rc=0 00:31:09

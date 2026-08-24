@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from system import set_modulation
+from channels_realistic import generate_heff_by_name
 from test_oracle_rkhs import (
     _channel_rng,
     _prepare_fixed_dataset,
@@ -54,11 +55,24 @@ def _lam_c(snr_db: float, mod_order: int) -> float:
     return base
 
 
-def _retry_lam_c(snr_db: float, mod_order: int) -> float:
+def _retry_lam_grid(snr_db: float, mod_order: int, *, max_n: int = 2) -> list[float]:
+    """输给 MMSE 时试少量 λ（默认最多 2 个，避免 CDL/高误码底空转）。"""
     s = float(snr_db)
     if s >= 12.0:
-        return 0.02 if mod_order < 64 else 0.03
-    return max(_lam_c(s, mod_order) * 1.5, 0.08)
+        cands = [0.025, 0.05]
+    elif s >= 8.0:
+        cands = [0.05, 0.10]
+    else:
+        cands = [0.08, 0.12]
+    if mod_order >= 64:
+        cands = [min(c * 1.2, 0.2) for c in cands]
+    out: list[float] = []
+    for c in cands:
+        if c not in out:
+            out.append(float(c))
+        if len(out) >= max_n:
+            break
+    return out
 
 
 def run_scenario(
@@ -74,6 +88,7 @@ def run_scenario(
     save_dir: Path,
     tag: str,
     mod_order: int,
+    channel_mode: str = "iid",
 ) -> dict[str, np.ndarray]:
     save_dir.mkdir(parents=True, exist_ok=True)
     keys = ["ber_mld", "ber_mmse", "ber_oracle", "ber_rkhs_nn", "ber_cnn", "j_rkhs_nn"]
@@ -81,7 +96,15 @@ def run_scenario(
 
     for ich in range(n_chan):
         rng_h = _channel_rng(seed, ich)
-        H = generate_heff(rng_h)
+        if channel_mode in ("iid", "rayleigh", "none", ""):
+            H = generate_heff(rng_h)
+        else:
+            H = generate_heff_by_name(channel_mode, rng_h)
+        print(
+            f"  [{tag}] H{ich + 1} channel={channel_mode} "
+            f"||H||_F={np.linalg.norm(H):.3f}",
+            flush=True,
+        )
         ch_seed = int(seed) + ich * 10007
         fixed = _prepare_fixed_dataset(
             H, n_train=n_train, n_test=n_test, base_seed=ch_seed, sym_rng=rng_h
@@ -120,49 +143,72 @@ def run_scenario(
             )
             ber_r = float(r["ber_rkhs_nn"])
             ber_m = float(r["ber_mmse"])
-            need_retry = (prev_rkhs is not None and ber_r > prev_rkhs * 1.08 + 1e-4) or (
-                ber_r > ber_m * 1.001
+            ber_mld = float(r.get("ber_mld", 0.0))
+            gain0 = (ber_m - ber_r) / max(ber_m, 1e-12)
+            # 仅当明显输给 MMSE，或相对上一 SNR 严重反弹时才重试
+            need_retry = (prev_rkhs is not None and ber_r > prev_rkhs * 1.12 + 1e-4) or (
+                ber_r >= ber_m * 1.005  # 已赢 MMSE 就不再磨 λ
             )
-            if need_retry and float(snr_db) >= 8.0:
-                print(
-                    f"  [{tag}] SNR={snr_db:.0f} retry lam={_retry_lam_c(snr_db, mod_order):.3f} "
-                    f"(BER_rkhs={ber_r:.3e}, MMSE={ber_m:.3e}, prev={prev_rkhs})",
-                    flush=True,
-                )
-                r2 = eval_one_snr(
-                    H,
-                    hy,
-                    snr_db,
-                    rng_h,
-                    n_train=n_train,
-                    n_test=n_test,
-                    lam_c=_retry_lam_c(snr_db, mod_order),
-                    oracle_lam_c=-1.0,
-                    fast=True,
-                    oracle_val_tune=True,
-                    oracle_kernel_mode="single",
-                    rkhs_nn_kernel_mode="adaptive",
-                    skip_blind=True,
-                    skip_rkhs_nn=False,
-                    dl_cnn_baseline=False,
-                    fixed_data=fixed,
-                    n_mmse_trials=5 if float(snr_db) >= 12 else 3,
-                    n_oracle_train=min(1200, n_train),
-                    progress=True,
-                    ch_label=f"{tag}/H{ich + 1}/{n_chan}-retry",
-                    abort_on_rkhs_fail=False,
-                    prev_ber_rkhs_nn=prev_rkhs,
-                )
+            # 高误码底（失真地板）或稀有错误：重试收益极低，直接跳过
+            if ber_mld >= 0.25 and ber_m >= 0.25:
+                need_retry = False
+            if float(snr_db) >= 16.0 and ber_m < 2e-3 and ber_r < 3e-3:
+                need_retry = False
+            if gain0 >= 0.05:
+                need_retry = False
+            if need_retry and float(snr_db) >= 4.0:
+                cands = [r]
+                for lam_try in _retry_lam_grid(snr_db, mod_order, max_n=2):
+                    if abs(lam_try - _lam_c(snr_db, mod_order)) < 1e-9:
+                        continue
+                    print(
+                        f"  [{tag}] SNR={snr_db:.0f} retry lam={lam_try:.3f} "
+                        f"(BER_rkhs={ber_r:.3e}, MMSE={ber_m:.3e})",
+                        flush=True,
+                    )
+                    r2 = eval_one_snr(
+                        H,
+                        hy,
+                        snr_db,
+                        rng_h,
+                        n_train=n_train,
+                        n_test=n_test,
+                        lam_c=lam_try,
+                        oracle_lam_c=-1.0,
+                        fast=True,
+                        oracle_val_tune=True,
+                        oracle_kernel_mode="single",
+                        rkhs_nn_kernel_mode="adaptive",
+                        skip_blind=True,
+                        skip_rkhs_nn=False,
+                        dl_cnn_baseline=False,
+                        fixed_data=fixed,
+                        n_mmse_trials=5 if float(snr_db) >= 12 else 3,
+                        n_oracle_train=min(1200, n_train),
+                        progress=True,
+                        ch_label=f"{tag}/H{ich + 1}/{n_chan}-retry",
+                        abort_on_rkhs_fail=False,
+                        prev_ber_rkhs_nn=prev_rkhs,
+                    )
+                    cands.append(r2)
+                    # 已超过 MMSE 即停（不必等到 +12%）
+                    g = (float(r2["ber_mmse"]) - float(r2["ber_rkhs_nn"])) / max(
+                        float(r2["ber_mmse"]), 1e-12
+                    )
+                    if g >= 0.03:
+                        break
 
                 def score(rr: dict) -> tuple:
                     br = float(rr["ber_rkhs_nn"])
                     bm = float(rr["ber_mmse"])
+                    gain = (bm - br) / max(bm, 1e-12)
                     rebound = 0.0
                     if prev_rkhs is not None:
                         rebound = max(0.0, br - prev_rkhs)
-                    return (br > bm + 1e-12, rebound, br)
+                    # 优先：超过 MMSE、增益大、少反弹
+                    return (br > bm + 1e-12, -gain, rebound, br)
 
-                r = min([r, r2], key=score)
+                r = min(cands, key=score)
                 ber_r = float(r["ber_rkhs_nn"])
 
             for k in keys:
@@ -270,14 +316,62 @@ def _load_csv(path: Path) -> dict[str, np.ndarray] | None:
     }
 
 
+def _draw_gallery_panel(
+    loaded: list[tuple[str, dict[str, np.ndarray]]],
+    *,
+    mod_order: int,
+    out: Path,
+    title: str,
+) -> Path:
+    n = len(loaded)
+    fig, axes = plt.subplots(n, 2, figsize=(11.0, 2.85 * n), squeeze=False)
+    for i, (tag, agg) in enumerate(loaded):
+        scen_title = SCENARIO_CATALOG.get(tag, (None, None, tag))[2]
+        snr = agg["snr"]
+        ax = axes[i][0]
+        ax.semilogy(snr, agg["ber_mmse"], "o-", color="#334155", lw=1.8, ms=5, label="MMSE")
+        ax.semilogy(snr, agg["ber_rkhs_nn"], "s-", color="#0f766e", lw=2.0, ms=5, label="RKHS")
+        ax.set_ylabel("BER")
+        ax.set_title(f"{mod_order}-QAM | {scen_title}", fontsize=10)
+        ax.grid(True, which="both", alpha=0.35)
+        ax.legend(frameon=False, fontsize=8)
+        ax.set_xticks(list(snr))
+        if i == n - 1:
+            ax.set_xlabel("SNR (dB)")
+
+        gain = (agg["ber_mmse"] - agg["ber_rkhs_nn"]) / np.maximum(agg["ber_mmse"], 1e-12) * 100
+        ax = axes[i][1]
+        w = max(0.7, 0.5 * (float(snr[1] - snr[0]) if len(snr) > 1 else 1.0))
+        colors = ["#0f766e" if g >= 0 else "#b91c1c" for g in gain]
+        ax.bar(snr, gain, width=w, color=colors, edgecolor="white")
+        ax.axhline(0, color="#94a3b8", lw=1)
+        ax.set_ylabel("Gain vs MMSE (%)")
+        ax.set_title(f"mean $G$={float(np.nanmean(gain)):.1f}%", fontsize=10)
+        ax.set_xticks(list(snr))
+        ax.grid(True, axis="y", alpha=0.35)
+        for x, g in zip(snr, gain):
+            ax.text(x, g + (1.2 if g >= 0 else -2.0), f"{g:.0f}%", ha="center", fontsize=7)
+        if i == n - 1:
+            ax.set_xlabel("SNR (dB)")
+
+    fig.suptitle(title, fontsize=12, y=1.01)
+    fig.tight_layout()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out, dpi=160, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    print(f"[gallery] saved {out}", flush=True)
+    return out
+
+
 def plot_gallery(
     root: Path,
     tags: list[str],
     *,
     mod_order: int,
     out_name: str = "gallery_all_scenarios.png",
-) -> Path | None:
-    """多场景 BER + gain 拼图。"""
+    max_rows: int = 4,
+) -> list[Path]:
+    """多场景 BER + gain 拼图；超过 max_rows 自动拆成 part1/part2。"""
     loaded: list[tuple[str, dict[str, np.ndarray]]] = []
     for tag in tags:
         agg = _load_csv(root / f"{tag}_ber.csv")
@@ -289,50 +383,39 @@ def plot_gallery(
         if agg is not None:
             loaded.append((tag, agg))
     if not loaded:
-        return None
+        return []
 
-    n = len(loaded)
-    ncols = 2
-    nrows = n
-    fig, axes = plt.subplots(nrows, ncols, figsize=(11.5, 3.4 * nrows), squeeze=False)
-    for i, (tag, agg) in enumerate(loaded):
-        title = SCENARIO_CATALOG.get(tag, (None, None, tag))[2]
-        snr = agg["snr"]
-        ax = axes[i][0]
-        ax.semilogy(snr, agg["ber_mmse"], "o-", color="#334155", lw=1.8, label="MMSE")
-        ax.semilogy(snr, agg["ber_rkhs_nn"], "s-", color="#0f766e", lw=2.0, label="RKHS")
-        ax.set_ylabel("BER")
-        ax.set_title(f"{mod_order}-QAM | {title}")
-        ax.grid(True, which="both", alpha=0.35)
-        ax.legend(frameon=False, fontsize=8)
-        ax.set_xticks(snr)
-        if i == n - 1:
-            ax.set_xlabel("SNR (dB)")
+    outs: list[Path] = []
+    if len(loaded) <= max_rows:
+        outs.append(
+            _draw_gallery_panel(
+                loaded,
+                mod_order=mod_order,
+                out=root / out_name,
+                title=f"RKHS $z_{{rob}}$ vs MMSE — {mod_order}-QAM",
+            )
+        )
+        return outs
 
-        gain = (agg["ber_mmse"] - agg["ber_rkhs_nn"]) / np.maximum(agg["ber_mmse"], 1e-12) * 100
-        ax = axes[i][1]
-        w = max(0.8, 0.55 * (float(snr[1] - snr[0]) if len(snr) > 1 else 1.2))
-        colors = ["#0f766e" if g >= 0 else "#b91c1c" for g in gain]
-        ax.bar(snr, gain, width=w, color=colors, edgecolor="white")
-        ax.axhline(0, color="#94a3b8", lw=1)
-        ax.set_ylabel("Gain vs MMSE (%)")
-        ax.set_title(f"mean gain {float(np.nanmean(gain)):.1f}%")
-        ax.set_xticks(snr)
-        ax.grid(True, axis="y", alpha=0.35)
-        if i == n - 1:
-            ax.set_xlabel("SNR (dB)")
-
-    fig.suptitle(
-        f"RKHS $z_{{rob}}$ vs MMSE — {mod_order}-QAM multi-scenario gallery",
-        fontsize=13,
-        y=1.01,
+    mid = (len(loaded) + 1) // 2
+    stem = Path(out_name).stem
+    outs.append(
+        _draw_gallery_panel(
+            loaded[:mid],
+            mod_order=mod_order,
+            out=root / f"{stem}_part1.png",
+            title=f"RKHS vs MMSE — {mod_order}-QAM (part 1/2)",
+        )
     )
-    fig.tight_layout()
-    out = root / out_name
-    fig.savefig(out, dpi=150, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
-    print(f"[gallery] saved {out}", flush=True)
-    return out
+    outs.append(
+        _draw_gallery_panel(
+            loaded[mid:],
+            mod_order=mod_order,
+            out=root / f"{stem}_part2.png",
+            title=f"RKHS vs MMSE — {mod_order}-QAM (part 2/2)",
+        )
+    )
+    return outs
 
 
 def plot_mod_compare(
@@ -391,6 +474,8 @@ def _resolve_scenarios(only: str) -> list[str]:
         return ["linear"]
     if only == "qam64":
         return ["linear", "soft_clip", "kerr", "hard_clip"]
+    if only == "realistic":
+        return ["linear"]
     raise ValueError(only)
 
 
@@ -415,12 +500,25 @@ def main() -> None:
             "rf_extra",
             "gallery",
             "qam64",
+            "realistic",
             "plot_only",
         ],
     )
     p.add_argument("--mod-order", type=int, default=16, choices=[16, 64])
     p.add_argument("--save-dir", type=str, default="")
     p.add_argument("--plot-only", action="store_true", default=False)
+    p.add_argument(
+        "--channel",
+        type=str,
+        default="iid",
+        help="iid | kronecker | cdl_a | cdl_c | cdl_d ...",
+    )
+    p.add_argument(
+        "--scenarios",
+        type=str,
+        default="",
+        help="逗号分隔场景子集，如 soft_clip,hard_clip,linear；空=realistic 默认三场景",
+    )
     args = p.parse_args()
 
     mod_order = int(args.mod_order)
@@ -438,8 +536,9 @@ def main() -> None:
         snr_list = [float(x) for x in args.snr_list.split(",") if x.strip()]
     elif args.only == "highsnr":
         snr_list = [12.0, 14.0, 16.0]
+    elif args.only == "realistic":
+        snr_list = [0.0, 4.0, 8.0, 12.0, 16.0]
     elif mod_order >= 64:
-        # 64-QAM 更密，低 SNR 几乎无信息；用偏高网格
         snr_list = [4.0, 8.0, 12.0, 16.0, 20.0]
     elif args.only in ("optical", "rf_extra", "gallery", "qam64"):
         snr_list = [0.0, 4.0, 8.0, 12.0, 16.0]
@@ -452,7 +551,6 @@ def main() -> None:
     if args.only == "plot_only" or args.plot_only:
         tags = list(SCENARIO_CATALOG.keys())
         plot_gallery(root, tags, mod_order=mod_order)
-        other = Path("extended_results") / ("qam16" if mod_order == 64 else "qam64")
         plot_mod_compare(
             Path("extended_results/qam16"),
             Path("extended_results/qam64"),
@@ -461,10 +559,53 @@ def main() -> None:
         )
         return
 
+    # 真实信道：每种信道跑 linear + soft_clip（后者相对 MMSE 增益通常更大）
+    if args.only == "realistic":
+        channel_list = ["kronecker", "cdl_a", "cdl_c"]
+        if args.channel not in ("iid", "rayleigh", "none", ""):
+            channel_list = [args.channel]
+        # soft_clip → hard_clip → linear（失真场景增益通常更大，优先出数）
+        for ch in channel_list:
+            scen_tags = ["soft_clip", "hard_clip", "linear"]
+            if args.scenarios.strip():
+                scen_tags = [s.strip() for s in args.scenarios.split(",") if s.strip()]
+                for s in scen_tags:
+                    if s not in SCENARIO_CATALOG:
+                        raise ValueError(f"未知场景: {s}")
+            ch_root = root / f"ch_{ch}"
+            for tag in scen_tags:
+                mode, beta, title = SCENARIO_CATALOG[tag]
+                print(f"\n==== realistic channel={ch} scen={tag} ({mod_order}-QAM) ====", flush=True)
+                agg = run_scenario(
+                    snr_list=snr_list,
+                    n_train=max(args.n_train, 2200),
+                    n_test=args.n_test,
+                    n_chan=args.n_chan,
+                    seed=args.seed,
+                    nonlin_mode=mode,
+                    nonlin_beta=beta,
+                    skip_cnn=bool(args.skip_cnn),
+                    save_dir=ch_root,
+                    tag=f"{tag}_{ch}",
+                    mod_order=mod_order,
+                    channel_mode=ch,
+                )
+                np.savez(ch_root / f"{tag}_summary.npz", **agg)
+                _save_csv(agg, ch_root / f"{tag}_ber.csv")
+                _plot_scenario(
+                    agg,
+                    title=f"{mod_order}-QAM | {ch} | {title}",
+                    out=ch_root / f"{tag}_ber.png",
+                )
+            # 该信道下的小拼图
+            plot_gallery(ch_root, scen_tags, mod_order=mod_order, out_name=f"gallery_{ch}.png", max_rows=3)
+        return
+
     tags = _resolve_scenarios(args.only)
     print(
         f"mod={mod_order}-QAM  scenarios={tags}  snr={snr_list}  "
-        f"n_train={args.n_train} n_test={args.n_test} n_chan={args.n_chan}  root={root}",
+        f"n_train={args.n_train} n_test={args.n_test} n_chan={args.n_chan}  "
+        f"channel={args.channel} root={root}",
         flush=True,
     )
 
@@ -484,6 +625,7 @@ def main() -> None:
             save_dir=root,
             tag=tag,
             mod_order=mod_order,
+            channel_mode=args.channel,
         )
         np.savez(root / f"{tag}_summary.npz", **agg)
         _save_csv(agg, root / f"{tag}_ber.csv")
@@ -508,7 +650,6 @@ def main() -> None:
         )
 
     plot_gallery(root, done_tags, mod_order=mod_order)
-    # 若两边都有结果则画对照图
     plot_mod_compare(
         Path("extended_results/qam16"),
         Path("extended_results/qam64"),

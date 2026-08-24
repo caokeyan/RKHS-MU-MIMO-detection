@@ -51,13 +51,20 @@ $G>0$ 表示 RKHS 优于 MMSE；$G<0$ 表示劣于 MMSE。多信道实验时，�
 \midrule
 天线 / 用户 & $M=128$，$K=40$；仅检测期望用户 $X_1$ \\
 调制 & 方形单位能量 QAM；Gray I/Q 映射；$|\mathcal{A}|\in\{16,64\}$ \\
-信道 & i.i.d.\ Rayleigh 块衰落 $H_{\mathrm{eff}}$；每信道独立重采样 \\
+信道 & i.i.d.\ Rayleigh（主结果）；另含 Kronecker 相关与 Sionna 3GPP CDL \\
 观测 & 线性：$Y=HX+N$；非线性：在 $Y$ 上再施无记忆失真（见下） \\
 噪声 & $N\sim\mathcal{CN}(0,N_0 I)$，$\mathrm{SNR}_{\mathrm{dB}}=10\log_{10}(E_s/N_0)$，$E_s=1$ \\
 随机种子 & 信道种子基址 $42$；信道索引偏移固定 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{poster_headline.png}
+  \caption{结果摘要海报（一眼可读）：线性增益区、中期 $G$、关键数字。}
+  \label{fig:poster-head}
+\end{figure}
 
 \begin{table}[H]
 \centering
@@ -175,7 +182,7 @@ SNR (dB) & MLD & Oracle & RKHS $z_{\mathrm{rob}}$ & MMSE+LS & $G$ (\%) \\
 \end{figure}
 
 \noindent
-在该区间可部署 RKHS 相对 MMSE 全程正增益，约 $19\%$--$35\%$；Oracle 与 MLD 的 BER 高度一致，支持第\ref{ch:theory}章的可逼近性论断。
+在该区间可部署 RKHS 相对 MMSE 全程正增益，约 $19\%$--$35\%$；Oracle 与 MLD 的 BER 高度一致。
 
 \section{扩展实验 A：线性场景至高 SNR}
 
@@ -207,13 +214,38 @@ SNR (dB) & RKHS & MMSE+LS & $G$ (\%) \\
 \section{扩展实验 B：多前端失真（16-QAM）}
 \label{sec:exp-nonlin16}
 
-在 $Y=HX+N$ 之后施加表\ref{tab:nonlin-cfg}失真，\textbf{同一}可部署流水线评测。图\ref{fig:gallery16}为各场景 BER 与 $G$ 拼图；表\ref{tab:gain16}汇总相对 MMSE 的增益。
+\subsection{实验动机与设定}
+
+实际接收链路在 $Y=HX+N$ 之后，往往还存在\textbf{无记忆前端失真}：射频限幅、功放/光纤类非线性、本振相位噪声、I/Q 失衡等。这些效应使真实观测偏离线性高斯模型，而基站侧检测器若仍按线性模型工作，即构成\textbf{模型失配}。
+
+本实验的目的\textbf{不是}为每一种前端单独重训一套检测器，而是回答：
+\begin{quote}
+在检测器内部仍使用线性模型假设 + $z_{\mathrm{rob}}$+RKHS 的前提下，同一套可部署流水线能否在多种失真下相对 MMSE+LS 保持增益？
+\end{quote}
+因此：
+\begin{itemize}[leftmargin=2em]
+  \item 数据生成：先按式\eqref{eq:sys} 得到 $Y$，再施加表\ref{tab:nonlin-cfg} 的失真得到 $\tilde Y$；
+  \item 检测器：对 $\tilde Y$ 运行与线性场景相同的可部署 RKHS / MMSE+LS（均不知失真的解析形式）；
+  \item 指标：仍用式\eqref{eq:ber}--\eqref{eq:gain}；SNR 网格 $\{0,4,8,12,16\}$\,dB，$n_{\mathrm{chan}}=2$。
+\end{itemize}
+失真参数取表\ref{tab:nonlin-cfg} 的固定标称值，用于兼容性扫查而非精细标定。
+
+\subsection{结果}
+
+图\ref{fig:gallery16a}--\ref{fig:gallery16b}将多场景拆成两页：左列 BER，右列相对 MMSE 的增益 $G$。表\ref{tab:gain16}汇总数值。
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.98\textwidth]{gallery_qam16.png}
-  \caption{16-QAM 多场景拼图：左列为 BER，右列为相对 MMSE 增益 $G$。}
-  \label{fig:gallery16}
+  \includegraphics[width=0.98\textwidth]{gallery_all_scenarios_part1.png}
+  \caption{16-QAM 多前端失真（上半）：BER 与相对 MMSE 增益 $G$。}
+  \label{fig:gallery16a}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{gallery_all_scenarios_part2.png}
+  \caption{16-QAM 多前端失真（下半）：BER 与相对 MMSE 增益 $G$。}
+  \label{fig:gallery16b}
 \end{figure}
 
 \begin{table}[H]
@@ -234,13 +266,27 @@ SNR (dB) & RKHS & MMSE+LS & $G$ (\%) \\
 \bottomrule
 \end{tabular}
 \begin{flushleft}
-\footnotesize $^\dagger$ linear 行取自细网格中对应 SNR；高 SNR 负增益见第\ref{sec:metric}节讨论。\\
-\texttt{iq\_imbalance} 在 16\,dB 出现大幅负增益，表明相位/正交类失配与稀有错误共同放大了核估计方差。
+\footnotesize $^\dagger$ linear 行取自细网格中对应 SNR；高 SNR 负增益见前文讨论。\\
+\texttt{iq\_imbalance} 在 16\,dB 出现大幅负增益，与线性高 SNR 瓶颈同类。
 \end{flushleft}
 \end{table}
 
 \noindent
-在幅度型失真（soft-clip / Kerr / MZM / hard-clip）下，$G$ 多为强正且随 SNR 增大：线性 MMSE 对模型失配更敏感，而 $z_{\mathrm{rob}}$+RKHS 仍保留一定非线性校正能力。相位噪声增益随 SNR 收窄；I/Q 失衡在最高 SNR 点失效，与线性高 SNR 瓶颈同类。
+幅度型失真（soft-clip / Kerr / MZM / hard-clip）下 $G$ 多为强正：线性 MMSE 对模型失配更敏感，而 $z_{\mathrm{rob}}$+RKHS 仍保留一定非线性校正能力。相位噪声增益随 SNR 收窄；I/Q 失衡在最高 SNR 点失效。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{poster_softclip_highlight.png}
+  \caption{soft-clip 高光：BER 下降区填充 + 逐点增益柱（均值约 52\%）。}
+  \label{fig:poster-soft}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{poster_gain_heatmap.png}
+  \caption{16-QAM 全场景增益热力图（绿=优于 MMSE）。}
+  \label{fig:poster-heat}
+\end{figure}
 
 \section{扩展实验 C：64-QAM 迁移}
 \label{sec:exp-qam64}
@@ -280,15 +326,86 @@ SNR (dB) & RKHS & MMSE+LS & $G$ (\%) \\
 \noindent
 64-QAM 绝对 BER 高于 16-QAM（星座更密），但相对 MMSE 的增益模式与 16-QAM 一致：失真场景强正增益，线性高 SNR 仍可能翻负。这说明方法迁移主要受类别数与样本/正则调度影响，而非需重设计检测器结构。
 
+\section{扩展实验 D：更真实信道（Sionna CDL / Kronecker）}
+\label{sec:exp-realistic}
+
+为降低“仅 i.i.d.\ Rayleigh”的质疑，补充两类信道（\textbf{检测流水线不变}，仍为 $\hat H$+$z_{\mathrm{rob}}$+Adaptive-MKL）：
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{Kronecker 空间相关}：$H=R_{\mathrm{rx}}^{1/2}GR_{\mathrm{tx}}^{1/2}$，指数相关 $\rho_{\mathrm{rx}}=0.5$，$\rho_{\mathrm{tx}}=0.3$，列功率归一；
+  \item \textbf{3GPP CDL}（NVIDIA Sionna TR\,38.901）：上行 CDL-A / CDL-C，基站 $8\times16$ 面板（$M=128$），$K=40$。
+\end{itemize}
+
+\paragraph{CDL 多用户构造说明.}
+标准 CDL 是单链路簇延迟线模型，簇到达角相对阵列几何\textbf{固定}。若对 $K$ 个用户共用同一基站朝向，则各用户信道落入近乎相同的角度子空间，条件数可达 $10^2$--$10^3$，此时即便线性 MLD/MMSE 也会出现不可接受的误码地板。本报告的多用户设定为：对每个用户独立采样基站方位角（\texttt{bs\_orientation} 的 batch 维），等效于用户分布在不同到达角；生成后仍做列功率归一。该设定下条件数与 Kronecker 同量级（约 $10^0$--$10^1$），线性场景下 MLD 可回到近零误码，与物理可分的上行 MU-MIMO 一致。
+
+\paragraph{配置.}
+16-QAM，$N_{\mathrm{tr}}=2200$，$N_{\mathrm{te}}=3000$，2 条信道实现，SNR $\{0,4,8,12\}$\,dB；场景优先 soft\_clip / hard\_clip / linear。相对增益仍按式\eqref{eq:gain}、先信道平均再算 $G$。
+
+\subsection{Kronecker 相关信道}
+
+表\ref{tab:kron-gain}给出 Kronecker 下三场景增益。soft-clip 失配最强：平均约 $39\%$，12\,dB 约 $61\%$；hard-clip 与 linear 亦稳定为正（约 $7\%$--$33\%$）。
+
+\begin{table}[H]
+\centering
+\caption{Kronecker 相关信道：相对 MMSE 增益 $G$（\%，2 信道平均）}
+\label{tab:kron-gain}
+\begin{tabular}{lrrrrr}
+\toprule
+场景 & 0\,dB & 4\,dB & 8\,dB & 12\,dB & 均值 \\
+\midrule
+soft\_clip & $+16.4$ & $+32.9$ & $+46.9$ & $+61.4$ & $+39.4$ \\
+hard\_clip & $+15.0$ & $+17.9$ & $+8.9$  & $+33.3$ & $+18.8$ \\
+linear     & $+13.1$ & $+13.7$ & $+6.6$  & $+19.9$ & $+13.3$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{CDL-A / CDL-C}
+
+表\ref{tab:cdl-gain}汇总 CDL-A / CDL-C 三场景（2 信道平均）。MLD 在 soft-clip 下约 $0.27$--$0.39$ 的误码地板来自\textbf{检测器仍按线性 $Y=HX+N$ 计分}与前端幅度压缩的失配，与 Kronecker+soft-clip 同量级，而非信道病态。CDL-A 上 soft/hard-clip 平均 $G$ 约 $19\%$--$20\%$（12\,dB 可达约 $33\%$）；CDL-C 增益略低但仍为正。CDL-A 线性高 SNR 可出现负增益，而 CDL-C 线性仍保持小幅正增益。
+
+\begin{table}[H]
+\centering
+\caption{CDL 信道：相对 MMSE 增益 $G$（\%，2 信道平均；待填项标 ---）}
+\label{tab:cdl-gain}
+\begin{tabular}{lrrrrr}
+\toprule
+场景 & 0\,dB & 4\,dB & 8\,dB & 12\,dB & 均值 \\
+\midrule
+CDL-A + soft\_clip & $+9.3$ & $+12.7$ & $+20.7$ & $+33.2$ & $+19.0$ \\
+CDL-A + hard\_clip & $+8.2$ & $+18.0$ & $+22.5$ & $+32.5$ & $+20.3$ \\
+CDL-A + linear     & $+3.3$ & $-0.6$ & $-3.6$ & $-16.5$ & $-4.4$ \\
+CDL-C + soft\_clip & $+8.8$ & $+8.7$ & $+10.1$ & $+13.6$ & $+10.3$ \\
+CDL-C + hard\_clip & $+2.1$ & $+6.2$ & $+4.2$ & $+8.7$ & $+5.3$ \\
+CDL-C + linear     & $+4.1$ & $+6.5$ & $+5.9$ & $+12.9$ & $+7.4$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{poster_realistic.png}
+  \caption{更真实信道结果海报（随 CDL/Kronecker 实验更新）。}
+  \label{fig:real-ch}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.88\textwidth]{poster_gain_leaderboard.png}
+  \caption{全场景增益排行榜（含真实信道条目）。}
+  \label{fig:poster-board}
+\end{figure}
+
 \section{结果综合与局限}
 
 \begin{enumerate}[leftmargin=2em]
   \item \textbf{中期（0--10\,dB，16-QAM）}：可部署 RKHS 相对 MMSE 约 $19\%$--$35\%$ BER 降低；Oracle$\approx$MLD。
   \item \textbf{多前端失真}：同一 $z_{\mathrm{rob}}$+RKHS 流水线在幅度型失配下可取得约 $23\%$--$52\%$ 的平均 $G$（表\ref{tab:gain16}--\ref{tab:qam64-gain}）。
-  \item \textbf{高 SNR 线性瓶颈}：稀有错误 + CSI/正则调度使 $G$ 可翻负；需更大测试集、更精细的高 SNR 核带宽/正则，或与线性估计器融合，方能进一步闭合差距。
-  \item \textbf{64-QAM}：验证更高阶调制下流水线可迁移；应关注相对增益而非绝对 BER 的跨调制直接数值比较。
+  \item \textbf{更真实信道}：Kronecker 上 soft-clip 平均 $G\approx 39\%$（表\ref{tab:kron-gain}）；修复多用户角度后的 CDL-A soft-clip 平均约 $19\%$（表\ref{tab:cdl-gain}），说明增益不只依赖 i.i.d.\ Rayleigh。
+  \item \textbf{高 SNR 线性瓶颈}：稀有错误 + CSI/正则调度使 $G$ 可翻负；需更大测试集、更精细的高 SNR 核带宽/正则，或与线性估计器融合。
+  \item \textbf{64-QAM}：流水线可迁移；应关注相对增益而非绝对 BER 的跨调制直接比较。
 \end{enumerate}
 
-局限：无记忆失真仅为简化前端模型；扩展实验信道数与 SNR 网格按算力裁剪；64-QAM 下每类样本更少，核估计方差更大；实时复杂度未系统评估。
+局限：无记忆失真为简化前端；真实信道实验按算力裁剪（2 信道、4 点 SNR）；CDL 采用每用户随机方位以构造可分 MU，与“单几何重复 $K$ 次”的错误用法不同；64-QAM 每类样本更少；实时复杂度未系统评估。
 
-扩展实验入口：\texttt{python run\_extended\_exp.py --mod-order \{16|64\} --only gallery|qam64|rf\_extra}；原始数值见 \texttt{extended\_results/qam16/}、\texttt{qam64/}。
+扩展实验入口：\texttt{python run\_extended\_exp.py --only realistic --channel \{kronecker|cdl\_a|cdl\_c\}}；数值见 \texttt{extended\_results/qam16/ch\_*/}。

@@ -67,22 +67,56 @@ R_{\mathrm{rob}}(\hat H)
 \end{center}
 
 \section{步骤二：在 $\varphi$ 上的 Adaptive-MKL}
+\label{sec:method-mkl}
 
-对训练特征做标准化，按理论锚点取带宽 $\gamma$ 与正则 $\lambda$，构造多尺度 RBF 基核 $\{k_m\}$。Adaptive-MKL 学习凸组合权重 $\eta$ 与系数；推理阶段可保留分核 $\alpha_m$，logits 为各核贡献之和。
+理论背景见第\ref{ch:theory}章第\ref{sec:mkl}节。可部署路径在标准化特征 $\varphi_i=z_{\mathrm{rob}}(y_i;\hat H)$ 上执行如下装配。
 
-\textbf{SNR 自适应的实现策略：}低中 SNR 使用加密比例组（RICH），以增大表达；$\mathrm{SNR}\ge 10\,\mathrm{dB}$ 时改用较稳的标准基核组并限制过长 L-BFGS，防止高 SNR 数值崩溃。这体现“理论要表达力、工程要稳定”的折中。
+\subsection{构造基核}
+由理论锚点得 $\gamma_0=\gamma_{\mathrm{theory}}(N_0,\{\varphi_i\})$、$\lambda=\lambda_{\mathrm{theory}}(N_0,n;c)$。按 SNR 选择尺度比 $\{r_m\}$（低中 SNR 用加密组，高 SNR 用标准组），生成
+\begin{equation}
+(K_m)_{ij}=k_m(\varphi_i,\varphi_j)=\exp(-\gamma_0 r_m\|\varphi_i-\varphi_j\|^2),
+\end{equation}
+并做迹归一化 $K_m\leftarrow (n/\mathrm{tr}K_m)\,K_m$。
+
+\subsection{分核展开与目标}
+采用参数化（B）：对每个基核维护 $\alpha_m\in\mathbb{R}^{|\mathcal{A}|\times n}$，
+\begin{equation}
+L(\varphi)=\sum_{m=1}^{M_k} K_m(\varphi,C)\,\alpha_m^\top,
+\qquad
+\hat X_1=\arg\max_a L_a(\varphi).
+\label{eq:method-Lm}
+\end{equation}
+训练目标为
+\begin{equation}
+\begin{aligned}
+\min_{\{\alpha_m\},\,\eta}
+&\ 
+\frac1n\sum_i\Big[
+-\log\frac{\exp(L_{X_1^{(i)}})}{\sum_b\exp(L_b)}
+\Big]
++\lambda\sum_m\frac{1}{\eta_m}\sum_a\alpha_{m,a}^\top K_m\alpha_{m,a}
+-\mu H(\eta),
+\end{aligned}
+\label{eq:mkl-obj}
+\end{equation}
+其中 $\eta=\mathrm{softmax}(\theta)$，$H(\eta)$ 为熵正则。优化分两阶段：先联合更新 $(\{\alpha_m\},\theta)$，再固定 $\eta$ 精修 $\{\alpha_m\}$（Adam，可选有限步 L-BFGS）。推理默认\textbf{保留分核} $\sum_m K_m\alpha_m^\top$，不强制压成单组 $\alpha_{\mathrm{eff}}$，以免损失多分辨率结构。
+
+\subsection{与“单核网格搜 $\gamma$”的对比}
+旧盲-$y$ Oracle 曾对单个 $\gamma$ 做昂贵搜索仍不稳定；Adaptive-MKL 把搜索内化为对 $\eta$ 的凸组合学习，并与后验损失 $J$ 同一目标对齐。部署期仍只存储 $\{K_m\text{的中心},\,\eta,\,\{\alpha_m\}\}$（或等价聚合后的一份模型），复杂度与中心数、基核数呈多项式关系。
+
+\textbf{SNR 自适应摘要：}表达力优先用 RICH 尺度库；$\mathrm{SNR}\ge 10\,\mathrm{dB}$ 改用较稳标准库并缩短精修，防止高 SNR 数值崩溃。这体现“理论要分辨率、工程要条件数”的折中。
 
 \section{步骤三：损失函数——hard 为主}
 
-可部署默认最小化
+可部署默认最小化 hard 交叉熵；在 Adaptive-MKL 参数化（B）下，完整目标即式\eqref{eq:mkl-obj}（经验版），正则为组范数型 $\Omega(\{\alpha_m\},\eta)$，而非单一 $\|\alpha\|_{K_\eta}^2$。若将多核压成 $K_\eta=\sum_m\eta_m K_m$ 与单组 $\alpha$，则可写
 \begin{equation}
 \widehat J_{\mathrm{hard}}
 =\frac1n\sum_{i=1}^n\Big[
 -\log\frac{e^{L_{X_1^{(i)}}(\varphi_i)}}{\sum_b e^{L_b(\varphi_i)}}
 \Big]
-+\lambda\|\alpha\|_{K_\eta}^2.
++\lambda\sum_a\alpha^{(a)\top}K_\eta\alpha^{(a)}.
 \end{equation}
-即经验版 $J(f)$。可选 plugin 将 $\hat p=\mathrm{softmax}(z_{\mathrm{rob}})$ 作软教师：
+两种写法在最优处可互相转化；实现默认保留分核以贴近 SimpleMKL。可选 plugin 将 $\hat p=\mathrm{softmax}(z_{\mathrm{rob}})$ 作软教师：
 \begin{equation}
 J_{\mathrm{plugin}}=w\,\mathrm{CE}(\hat p,f)+(1-w)J_{\mathrm{hard}}+\lambda\|f\|_{\mathcal{H}}^2.
 \end{equation}

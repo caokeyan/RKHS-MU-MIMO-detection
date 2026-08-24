@@ -1,0 +1,372 @@
+\chapter{理论基础：贝叶斯准则、RKHS 与可逼近性}
+\label{ch:theory}
+
+前一章指出：观测可以是线性的，最优检测通常是非线性的。本章在中期工作\cite{awan2018,steinwart2001,scholkopf2001,bartlett2002}基础上，把“逼近 MLD”写成一条可检验的理论链：
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{问题等价}：边际 MLD $\Leftrightarrow$ 多分类对数损失风险泛函的极小化子，判决取 $\arg\max$；
+  \item \textbf{可逼近性}：后验族 $\{f_a^*\}$ 可由高斯核 RKHS 中的元素任意逼近；
+  \item \textbf{有限维化}：表示定理把无限维 ERM 精确化为系数矩阵上的凸问题；
+  \item \textbf{样本复杂度}：Rademacher 型 excess-risk 界给出达到精度 $\varepsilon$ 所需样本量的显式量级；
+  \item \textbf{特征坐标}：通用逼近成立于合适输入坐标；坐标选错则数值上失效。
+\end{enumerate}
+同时给出为何不宜把高阶 QAM 检测写成“幅度回归 + 超平带投影”（PLAF/APSM 路线）的理论对照，从而说明本报告采用\textbf{后验多分类}目标的必然性。
+
+\section{贝叶斯决策与后验损失}
+
+\subsection{0-1 损失下的最优规则}
+只检 $X_1\in\mathcal{A}$（$|\mathcal{A}|=M_{\mathrm{mod}}$，如 16/64-QAM）时，符号错误的 0-1 损失下贝叶斯最优为最大后验：
+\begin{equation}
+\hat a^{\star}(y)=\arg\max_{a\in\mathcal{A}} f_a^*(y),\qquad
+f_a^*(y)=\mathbb{P}(X_1=a\mid Y=y).
+\label{eq:map}
+\end{equation}
+因此，任何希望逼近最优的学习型检测器，本质上应逼近 $\{f_a^*\}$ 或其单调变换（logits）。
+
+\subsection{命题：MLD 与多分类对数损失的等价性}
+\label{sec:prop-mld-equiv}
+
+设 $X_1$ 在 $\mathcal{A}$ 上均匀先验，$\ell$ 为严格凸的对数损失（交叉熵）。定义风险泛函
+\begin{equation}
+R(g)
+=\mathbb{E}_{Y,X_1}\Big[
+-\log\frac{\exp\big(g_{X_1}(Y)\big)}{\sum_{b\in\mathcal{A}}\exp\big(g_b(Y)\big)}
+\Big],
+\label{eq:risk-R}
+\end{equation}
+其中 $g=(g_a)_{a\in\mathcal{A}}$ 为候选 logits。
+
+\begin{proposition}[问题等价性]
+\label{prop:mld-equiv}
+在上述设定下，后验族 $\{f_a^*\}$（或其任意加性平移后的 logits）是 $R(g)$ 在充分大函数类中的联合极小化子，且
+\begin{equation}
+\hat X_1^{\mathrm{MLD}}(y)
+=\arg\max_{a\in\mathcal{A}} f_a^*(y)
+=\arg\max_{a\in\mathcal{A}} g_a^*(y).
+\end{equation}
+精确边际 MLD
+\begin{equation}
+\hat X_1^{\mathrm{MLD}}(y)
+=\arg\max_{a\in\mathcal{A}}
+\sum_{x_I\in\mathcal{A}^{K-1}}
+\exp\Big(-\frac{1}{N_0}\big\|y-H(a,x_I)\big\|^2\Big)
+\end{equation}
+的计算复杂度为 $\mathcal{O}\big(|\mathcal{A}|^{K-1}\big)$，并显式依赖 $H$；而式\eqref{eq:risk-R} 把问题改写为对联合分布 $p(y,X_1)$ 的泛函极小化，\textbf{不再在目标中显式出现 $H$}——$H$ 的信息被样本对 $\{(y_i,X_{1,i})\}$ 隐式编码。
+\end{proposition}
+
+命题\ref{prop:mld-equiv} 的证明要点见第\ref{ch:deriv}章。直观上：对数损失是后验的严格真评分（proper scoring rule），其总体风险极小化子恰为真后验（在可识别意义下）。
+
+\subsection{正则化经验风险}
+有限样本下采用经验风险 + RKHS 范数正则：
+\begin{equation}
+J(g)=\frac1n\sum_{i=1}^n
+\Big[
+-\log\frac{\exp\big(g_{X_1^{(i)}}(y_i)\big)}{\sum_b\exp\big(g_b(y_i)\big)}
+\Big]
++\lambda\sum_{a\in\mathcal{A}}\|g_a\|_{\mathcal{H}}^2,
+\label{eq:Jtheory}
+\end{equation}
+即总体风险 $R$ 的正则化经验版本。第一项是后验拟合；第二项把假设限制在（向量值）RKHS 内并控制复杂度。
+
+\subsection{与线性 MMSE 准则的对比}
+线性 MMSE 最小化 $\mathbb{E}\|X-\hat X\|^2$ 并限制 $\hat X$ 为 $Y$ 的线性函数，再硬判决。它优化的是\textbf{连续松弛 + 线性约束}下的均方误差，而非直接的符号后验。故：
+\begin{itemize}[leftmargin=2em]
+  \item MMSE 对应“线性模型层”上的最优线性估计；
+  \item $J(g)$ 对应“离散检测层”上的后验学习。
+\end{itemize}
+二者都合理，但评价与适用区间不同；这也解释了为何非线性后验学习有可能在低中 SNR 超过 MMSE。
+
+\section{为何不采用幅度回归式核方法（PLAF/APSM 对照）}
+\label{sec:plaf-gap}
+
+Awan 等\cite{awan2018} 的投影式自适应滤波（PLAF/APSM）在 RKHS 中将估计函数投影到超平带
+\begin{equation}
+C_t=\big\{g:\ |g(r^{(t)})-b^{(t)}|\le\varepsilon\big\},
+\end{equation}
+并在 BPSK/QPSK 下对 MAP 有明确对应。但对高阶 QAM，判决区域由多电平阈值划分，单一超平带不再对应 MAP，而退化为对符号幅度的逐点回归。中期工作据此给出如下对照（记号：有效 SINR 因子 $\rho(M,K)$，星座基数 $|\mathcal{A}|$）。
+
+\begin{proposition}[幅度回归式核检测器的 SER 下界（示意）]
+\label{prop:plaf-lb}
+设高斯核 RKHS 中学习得到的回归型检测器 $g_T$ 满足范数界 $\|g^\star\|_{\mathcal{H}}\le B_g$，则对任意 $\delta\in(0,1)$，以至少 $1-\delta$ 的概率存在仅依赖核的常数 $C_0>0$，使得
+\begin{equation}
+\mathrm{SER}(g_T)
+\ \ge\
+\frac{C_0 B_g^2}{T}
+-\frac{2\ln(1/\delta)}{T},
+\end{equation}
+且在匹配带宽选取下 $B_g^2$ 随 $|\mathcal{A}|\cdot\mathrm{SNR}/\rho(M,K)$ 增长。因而固定 $T$ 时，该下界关于 SNR \textbf{单增}，不会随 $\mathrm{SNR}\to\infty$ 消失。
+\end{proposition}
+
+\begin{proposition}[MMSE+最近邻的 SER 上界]
+\label{prop:mmse-ub}
+当 $M\ge K$ 时，MMSE 波束成形后接最近邻判决满足\cite{proakis2008,tse2005}
+\begin{equation}
+\mathrm{SER}_{\mathrm{MMSE}}
+\ \le\
+C\,|\mathcal{A}|\,\mathrm{erfc}\!\Big(
+c\,\sqrt{\rho(M,K)\,\mathrm{SNR}/|\mathcal{A}|}
+\Big)
+\ \xrightarrow[\mathrm{SNR}\to\infty]{}\ 0,
+\end{equation}
+衰减速率呈指数型 $\sim e^{-\alpha\,\mathrm{SNR}/|\mathcal{A}|}$。
+\end{proposition}
+
+\begin{theorem}[不可弥合差距]
+\label{thm:plaf-gap}
+由命题\ref{prop:plaf-lb}--\ref{prop:mmse-ub}，差距
+$\Delta(\mathrm{SNR})=\mathrm{SER}(g_T)-\mathrm{SER}_{\mathrm{MMSE}}$
+在超越某一阈值 $\mathrm{SNR}^\star=\Theta\big(|\mathcal{A}|\ln(T|\mathcal{A}|)\big)$ 后严格为正，且对 SNR 的导数为正。调制阶数同时抬高翻盘点与翻盘后的劣势斜率（“$|\mathcal{A}|$ 的双重惩罚”）。
+\end{theorem}
+
+定理\ref{thm:plaf-gap} 说明：在线性模型、高阶 QAM 下，\textbf{以符号幅度回归为目标的核方法}其性能上界可被 MMSE 锁定。这正是本报告改用命题\ref{prop:mld-equiv} 的后验多分类目标、而非超平带回归的理论动机。
+
+\section{再生核希尔伯特空间}
+
+\subsection{核与再生性质}
+设输入空间为特征域 $\mathcal{X}$（本项目中典型为 $\mathbb{R}^{|\mathcal{A}|}$ 的 struct / $z_{\mathrm{rob}}$ 坐标，而非原始 $\mathbb{C}^{M}$）。对称正定核 $k:\mathcal{X}\times\mathcal{X}\to\mathbb{R}$ 诱导希尔伯特空间 $\mathcal{H}_k$，满足再生性质
+\begin{equation}
+g(x)=\langle g,\,k(\cdot,x)\rangle_{\mathcal{H}_k},\qquad \forall g\in\mathcal{H}_k,\; x\in\mathcal{X}.
+\end{equation}
+点赋值泛函连续，使“在样本点上的损失 + RKHS 范数正则”成为良置问题\cite{aronszajn1950,schafer2006}。
+
+\subsection{高斯核与通用逼近}
+径向基核
+\begin{equation}
+k_\gamma(x,x')=\exp\big(-\gamma\|x-x'\|^2\big)
+\end{equation}
+是最常用的通用核之一。在紧集上，相应 $\mathcal{H}_k$ 在连续函数空间中稠密\cite{steinwart2001,steinwart2008}。
+
+\subsection{命题：后验属于可逼近类}
+\begin{proposition}[后验的 RKHS 可逼近性]
+\label{prop:rkhs-approx}
+在线性高斯模型 $Y=HX+N$ 下，条件后验可写为
+\begin{equation}
+f_a^*(y)
+\ \propto\
+\sum_{x:\,x_1=a}
+\exp\Big(
+\frac{2}{N_0}\Re(y^H Hx)
+-\frac{\|Hx\|^2}{N_0}
+\Big).
+\label{eq:fstar-exp}
+\end{equation}
+这是关于 $y$ 的有限个指数型核函数的加权和，与高斯核 RKHS $\mathcal{H}_G$ 中典型元素的结构吻合。由 Steinwart 通用核定理\cite{steinwart2001}，$\mathcal{H}_G$ 在 $C(\mathcal{K})$（紧集 $\mathcal{K}$ 上的连续函数）中稠密：对任意 $\varepsilon>0$，存在 $g_a^{\mathcal{H}}\in\mathcal{H}_G$ 使得
+\begin{equation}
+\sup_{y\in\mathcal{K}}\|g_a^{\mathcal{H}}-f_a^*\|\le\varepsilon,\qquad\forall a\in\mathcal{A}.
+\end{equation}
+\end{proposition}
+
+\begin{remark}
+命题\ref{prop:rkhs-approx} 在\textbf{原始观测坐标} $y\in\mathbb{C}^{M}$ 上给出存在性；实践中 $M=128$ 且高 SNR 后验近 one-hot，有限样本核插值仍可数值失败。第\ref{sec:coord}节强调：把输入改为与假设检验对齐的 struct / $z_{\mathrm{rob}}$ 坐标，是把“存在性”变成“可实证逼近”的关键步骤。
+\end{remark}
+
+\subsection{决策形式}
+对多类 logits，本报告采用
+\begin{equation}
+L(x)=K_\eta(x,C)\,\alpha^\top\in\mathbb{R}^{|\mathcal{A}|},\qquad
+\hat X_1=\arg\max_a L_a(x),
+\end{equation}
+其中 $C$ 为中心集。由于 $k$ 对 $x$ 非线性，整体决策是非线性的；又因表示定理，训练后只需存储有限系数 $\alpha$（及核权重 $\eta$）。
+
+\section{表示定理：从无限维到有限维}
+
+\begin{theorem}[RKHS 表示定理]
+\label{thm:representer}
+给定训练样本 $\{(y_i,X_1^{(i)})\}_{i=1}^n$，在乘积 RKHS $\mathcal{H}_G^{|\mathcal{A}|}$ 中的联合 ERM
+\begin{equation}
+\min_{\{g_a\}\subset\mathcal{H}_G}
+\frac1n\sum_{i=1}^n
+\Big[
+-\log\frac{\exp\big(g_{X_1^{(i)}}(y_i)\big)}{\sum_b\exp\big(g_b(y_i)\big)}
+\Big]
++\lambda\sum_{a\in\mathcal{A}}\|g_a\|_{\mathcal{H}_G}^2
+\end{equation}
+的任意最优解必可写成有限展开\cite{scholkopf2001,schafer2006}
+\begin{equation}
+\hat g_a(\cdot)=\sum_{i=1}^n \alpha_i^{(a)}\,k(\cdot,y_i),\qquad a\in\mathcal{A}.
+\end{equation}
+从而无限维函数优化精确等价于求解系数矩阵
+$\alpha=\big[\alpha^{(a)}\big]_{a\in\mathcal{A}}\in\mathbb{R}^{n\times|\mathcal{A}|}$：
+\begin{equation}
+\min_{\alpha}
+\frac1n\sum_{i=1}^n
+\Big[
+-\log\frac{\exp\big(K_{i\cdot}\alpha^{(X_1^{(i)})}\big)}{\sum_b\exp\big(K_{i\cdot}\alpha^{(b)}\big)}
+\Big]
++\lambda\sum_a \big(\alpha^{(a)}\big)^\top K\,\alpha^{(a)},
+\label{eq:finite-erm}
+\end{equation}
+其中 $K_{ij}=k(y_i,y_j)$ 为 Gram 矩阵。复杂度由 $|\mathcal{A}|^{K-1}$ 穷举降为核矩阵尺度的多项式运算（实现中常对中心子集做 Nystr\"om 式截断）。
+\end{theorem}
+
+\subsection{Oracle 与可部署的同一决策形式}
+当特权监督给出 $f^*$ 时，可令目标近似为核岭回归拟合去峰值后的 $\log f^*$（Oracle）。当只有硬标签时，$\ell$ 取交叉熵，需 Adam / L-BFGS。\textbf{决策形式 $L=K\alpha^\top$ 相同}，仅监督与求解器不同——保证“可逼近性上界”与“可部署主线”可比。
+
+\section{ERM 收敛速率与样本复杂度}
+
+\begin{theorem}[excess-risk 界与样本量]
+\label{thm:erm-rate}
+设 $B_a=\|f_a^*\|_{\mathcal{H}_G}$，$B_{\mathrm{tot}}^2=\sum_a B_a^2$，对数损失为 Lipschitz，且 $\sup_x k(x,x)=1$。则以至少 $1-\delta$ 的概率\cite{bartlett2002}，
+\begin{equation}
+R(\hat g_n)-R(g^*)
+\ \le\
+\frac{2B_{\mathrm{tot}}}{\sqrt{n}}
++\sqrt{\frac{2\ln(2/\delta)}{n}}.
+\label{eq:excess}
+\end{equation}
+当核带宽取与噪声方差同阶（$\gamma^{-1}\propto N_0$）时，可论证
+$B_{\mathrm{tot}}^2=\mathcal{O}\big(|\mathcal{A}|\,K\big)$（量级意义下）。因而达到 excess-risk $\varepsilon$ 所需样本量满足
+\begin{equation}
+n\ \gtrsim\ \frac{|\mathcal{A}|\,K}{\varepsilon^2}.
+\label{eq:sample-n}
+\end{equation}
+\end{theorem}
+
+\begin{remark}[与穷举复杂度的对照]
+精确 MLD 对干扰的穷举代价为 $|\mathcal{A}|^{K-1}$；式\eqref{eq:sample-n} 给出学习路径上与 $|\mathcal{A}|\,K/\varepsilon^2$ 成正比的样本需求。二者刻画的是不同资源：前者是\textbf{已知 $H$ 时的计算}，后者是\textbf{未知 $H$ 时的数据}。后验族各分量之和恒为 1 且共享同一联合分布，简单对各类 Rademacher 界求和可能偏松；更紧的多任务界仍是开放问题（见中期计划）。
+\end{remark}
+
+\section{多核学习：动机、假设类与算法形式}
+\label{sec:mkl}
+
+单核高斯带宽 $\gamma$ 很难同时适配低 SNR（后验平滑、需宽核）与高 SNR（后验尖锐、需窄核）。中期分析亦指出 $\sigma_k^2\propto N_0$ 仅为使 $B_{\mathrm{tot}}$ 不发散的\textbf{充分}条件，未必最优。多核学习（Multiple Kernel Learning, MKL）把“选一个 $\gamma$”提升为“在一组基核上学习凸组合”，从而在同一理论框架内扩容假设类\cite{bach2004,micchelli2005,cortes2009,rakotomamonjy2008}。
+
+\subsection{基核与组合核}
+给定锚点带宽 $\gamma_0$（实现中由噪声水平与特征尺度标定）及尺度比 $\{r_m\}_{m=1}^{M_k}$，定义 RBF 基核
+\begin{equation}
+k_m(x,x')=\exp\big(-\gamma_0 r_m\|x-x'\|^2\big),\qquad m=1,\ldots,M_k.
+\label{eq:base-km}
+\end{equation}
+组合核取单纯形上的凸组合
+\begin{equation}
+k_\eta=\sum_{m=1}^{M_k}\eta_m k_m,\qquad
+\eta\in\Delta^{M_k-1}
+=\Big\{\eta\ge 0:\ \sum_m\eta_m=1\Big\}.
+\label{eq:k-eta}
+\end{equation}
+每个 $k_m$ 诱导 RKHS $\mathcal{H}_m$；组合核诱导的空间 $\mathcal{H}_{k_\eta}$ 随 $\eta$ 变化，整体假设类为
+\begin{equation}
+\mathcal{F}_{\mathrm{MKL}}
+=\bigcup_{\eta\in\Delta}
+\Big\{
+g=\sum_m g_m:\ g_m\in\mathcal{H}_m,\ 
+\sum_m\frac{\|g_m\|_{\mathcal{H}_m}^2}{\eta_m}<\infty
+\Big\}
+\end{equation}
+（在 $\eta_m=0$ 的分量上约定相应 $g_m=0$）。因而 MKL 不是另起炉灶的黑盒，而是\textbf{在核方法内部}对分辨率的自适应选择。
+
+\subsection{两种等价参数化}
+对训练点 $\{x_i\}_{i=1}^n$，表示定理给出两种常用写法，数值上等价、优化路径不同。
+
+\paragraph{（A）单组系数 + 组合 Gram}
+令 $K_m=\big(k_m(x_i,x_j)\big)$，$K_\eta=\sum_m\eta_m K_m$，
+\begin{equation}
+L_a(x)=\sum_{i=1}^n \alpha_i^{(a)}\,k_\eta(x,x_i)
+\quad\Leftrightarrow\quad
+L=K_\eta\alpha^\top.
+\label{eq:mkl-A}
+\end{equation}
+正则项为 $\lambda\sum_a\alpha^{(a)\top}K_\eta\alpha^{(a)}$。优点是部署时只存一份 $\alpha$；缺点是 $\eta$ 与 $\alpha$ 耦合较紧，窄核易被宽核“稀释”。
+
+\paragraph{（B）分核系数 + 组范数型正则（SimpleMKL 风格）}
+为每一基核配备系数 $\alpha_m\in\mathbb{R}^{|\mathcal{A}|\times n}$，令
+\begin{equation}
+L(x)=\sum_{m=1}^{M_k} K_m(x,C)\,\alpha_m^\top
+=\sum_{m=1}^{M_k} L^{(m)}(x),
+\label{eq:mkl-B}
+\end{equation}
+并采用与 $\eta$ 耦合的正则\cite{rakotomamonjy2008,bach2004}
+\begin{equation}
+\Omega(\{\alpha_m\},\eta)
+=\sum_{m=1}^{M_k}\frac{1}{\eta_m}
+\sum_{a\in\mathcal{A}}
+\alpha_{m,a}^\top K_m\,\alpha_{m,a}.
+\label{eq:mkl-reg}
+\end{equation}
+直观上：$\eta_m$ 小则该核的有效正则变大，迫使 $\|\alpha_m\|$ 收缩，等价于“少用该分辨率”；$\eta_m$ 大则允许该核承担更多拟合。这正是本报告 Adaptive-MKL 的默认参数化（\texttt{keep\_multi\_alpha=True}）。
+
+\subsection{有限维优化问题}
+将式\eqref{eq:mkl-B}--\eqref{eq:mkl-reg} 代入多分类交叉熵，得到
+\begin{equation}
+\begin{aligned}
+\min_{\{\alpha_m\},\,\eta\in\Delta}
+&\quad
+\frac1n\sum_{i=1}^n
+\Big[
+-\log\frac{\exp\big(L_{X_1^{(i)}}(x_i)\big)}{\sum_b\exp\big(L_b(x_i)\big)}
+\Big]
++\lambda\,\Omega(\{\alpha_m\},\eta)
+-\mu\,H(\eta),
+\end{aligned}
+\label{eq:mkl-obj}
+\end{equation}
+其中 $H(\eta)=-\sum_m\eta_m\log\eta_m$ 为熵正则，防止 $\eta$ 过早塌缩到单核（实现中 $\mu$ 取小正数）。固定 $\eta$ 时对 $\{\alpha_m\}$ 凸；对 $\eta$ 通过 $\eta=\mathrm{softmax}(\theta)$ 无约束参数化后可用梯度法。典型交替策略（SimpleMKL）：
+\begin{enumerate}[leftmargin=2em]
+  \item 联合或交替更新 $(\{\alpha_m\},\theta)$；
+  \item 固定 $\eta$，精修 $\{\alpha_m\}$（可选 L-BFGS）；
+  \item 迹归一化 $K_m\leftarrow (n/\mathrm{tr}K_m)K_m$，使各基核能量可比。
+\end{enumerate}
+
+\subsection{理论含义（与单核对照）}
+\begin{enumerate}[leftmargin=2em]
+  \item \textbf{表达力}：$\mathcal{F}_{\mathrm{MKL}}$ 包含任一单核 RKHS，并允许跨尺度叠加，更易逼近“局部陡、全局缓”的后验形态。
+  \item \textbf{仍适用表示定理}：解仍由训练点上的核展开给出，决策形式不离开 $L=\sum_m K_m\alpha_m^\top$。
+  \item \textbf{复杂度控制}：组范数型正则 $\Omega$ 在学习 $\eta$ 的同时做核选择；熵项避免退化。
+  \item \textbf{与样本界的关系}：定理\ref{thm:erm-rate} 中的 $B_{\mathrm{tot}}$ 应对“有效使用的核组合”理解；MKL 不自动减小样本需求，但可在相同 $n$ 下降低逼近误差（偏置项）。
+\end{enumerate}
+
+\subsection{本项目的尺度库与 SNR 调度}
+实现上相对 $\gamma_0$ 取两套比例组：
+\begin{itemize}[leftmargin=2em]
+  \item 标准组 $\texttt{ADAPTIVE\_MKL\_RATIOS}\approx(0.05,0.15,0.5,1,2,8)$（偏稳，高 SNR 默认）；
+  \item 加密组 $\texttt{RICH\_ADAPTIVE\_MKL\_RATIOS}$（更多中间尺度，低中 SNR 默认）。
+\end{itemize}
+$\mathrm{SNR}\ge 10\,\mathrm{dB}$ 时收缩基核并限制过长 L-BFGS，防止 Gram 病态导致训练 SER 崩溃——这是数值稳定性对理论表达力的约束，而非否定 MKL。
+
+\section{核内系数参数化与同空间聚合}
+
+表示定理说明最优解在核张成的有限维子空间中，但 $\alpha$ 的参数化仍可选择：
+\begin{itemize}[leftmargin=2em]
+  \item 自由 $\alpha$（经典 MKL）；
+  \item 由小型网络生成 $\alpha$（核内 NN）：\textbf{不改变} $L=K_\eta\alpha^\top$ 的决策形式，只改变系数的生成方式；
+  \item 多候选 $\alpha^{(j)}$ 在验证集上按 $J$ 聚合后，再投影回同一 $K_\eta$ 上的单份 $\alpha$。
+\end{itemize}
+它们都属于“同 RKHS 决策形式上的表达/优化增强”，与改用纯黑盒网络不同。神经网络在本框架中仅是求解式\eqref{eq:finite-erm} 的数值工具，等价于对系数做梯度型优化。
+
+\section{可逼近性与特征坐标}
+\label{sec:coord}
+
+\subsection{命题（坐标依赖性）}
+若特征映射 $\varphi$ 使后验（或其 logits）作为 $\varphi(Y)$ 的函数具有足够正则性，且核为通用核，则存在核展开序列在 $L^2$/一致意义下逼近该后验；经验上表现为 Oracle 的 BER/$J$/MSE 贴合 MLD。
+
+\subsection{反例：错误坐标}
+若取 $\varphi(Y)=Y\in\mathbb{C}^{M}$（盲特征），高 SNR 下 $f^*(Y)$ 近 one-hot、决策边界极陡，有限中心 + 固定带宽的核插值极易失败——旧盲-$y$ Oracle 高 SNR 崩坏即为此。
+
+\subsection{正例：结构化坐标}
+若取 $\varphi(Y)=z(Y;H)\in\mathbb{R}^{|\mathcal{A}|}$（真 $H$ 的 GA 软分），坐标与 $|\mathcal{A}|$ 元假设检验对齐，后验作为 $z$ 的函数平滑得多，闭式/多核拟合可贴合 MLD。可部署时 $\varphi(Y)=z_{\mathrm{rob}}(Y;\hat H)$，相当于在\textbf{扰动后的坐标}上仍用同一理论框架学习；与 MLD 的间隙主要来自坐标偏移（CSI 误差），而非核空间先天无能。
+
+\begin{center}
+\fbox{\parbox{0.92\linewidth}{\centering
+\textbf{理论链一句话：}\\[0.25em]
+MLD $\equiv$ 后验风险极小化
+\ $\xrightarrow{\text{通用核}}$\
+RKHS 可逼近
+\ $\xrightarrow{\text{表示定理}}$\
+有限系数凸问题
+\ $\xrightarrow{\text{合适坐标}}$\
+可实证逼近。}}
+\end{center}
+
+\section{正则、中心数与泛化}
+
+$\lambda\|g\|_{\mathcal{H}}^2$ 控制有效复杂度；过小则插值噪声，过大则欠拟合。实现中用与 $N_0$、$n$ 相关的理论锚点设定 $\lambda$，并随 SNR 调整。中心数 $|C|$：特征维为 $|\mathcal{A}|$ 时可取较大字典（约 $10^3$ 量级）；盲高维特征则必须更克制。这些是定理\ref{thm:erm-rate} 在有限样本下的工程对应。
+
+\section{理论小结}
+
+\begin{enumerate}[leftmargin=2em]
+  \item 命题\ref{prop:mld-equiv}：最优检测是后验意义下的多分类问题；用 $J$ 学习后验是正确的贝叶斯代理。
+  \item 定理\ref{thm:plaf-gap}：高阶 QAM 下幅度回归式核方法可被 MMSE 锁定，故不宜作为主线。
+  \item 命题\ref{prop:rkhs-approx} + 定理\ref{thm:representer}：高斯核 RKHS 可逼近后验，且 ERM 精确有限维化；第\ref{sec:mkl}节的 Adaptive-MKL 在同一框架内用多尺度基核组合扩容分辨率。
+  \item 定理\ref{thm:erm-rate}：给出 $n\gtrsim|\mathcal{A}|K/\varepsilon^2$ 量级的样本需求。
+  \item 通用逼近不能替代特征设计：struct / $z_{\mathrm{rob}}$ 使“可逼近”成为可实证命题。
+\end{enumerate}
+下一章把上述理论装配为可运行的检测流水线；证明细节见第\ref{ch:deriv}章。

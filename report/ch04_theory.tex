@@ -1,144 +1,45 @@
-\chapter{理论基础：贝叶斯准则、RKHS 与可逼近性}
+\chapter{方法所依赖的理论要点}
 \label{ch:theory}
 
-前一章指出：观测可以是线性的，最优检测通常是非线性的。本章给出本报告用来构造该类非线性决策的理论工具——\textbf{贝叶斯后验准则}、\textbf{再生核希尔伯特空间（RKHS）}、\textbf{表示定理}与\textbf{多核学习}，并论证一个关键命题：\emph{在合适的特征坐标上，RKHS 中可以任意逼近后验；坐标选错，则“万能逼近”在数值上失效。}
+本章只保留\textbf{支撑可部署检测器设计}的必要理论，不展开学术证明。完整命题、定理与推导见独立附录（内部稿，不随本交付正文分发）。
 
-\section{贝叶斯决策与后验损失}
+\section{检测目标：逼近后验而非幅度回归}
 
-\subsection{0-1 损失下的最优规则}
-只检 $X_1\in\mathcal{A}$ 时，若采用符号错误的 0-1 损失，贝叶斯最优规则为最大后验：
+只检 $X_1\in\mathcal{A}$ 时，0-1 损失下的贝叶斯最优为
 \begin{equation}
 \hat a^{\star}(y)=\arg\max_{a\in\mathcal{A}} f_a^*(y),\qquad
 f_a^*(y)=\mathbb{P}(X_1=a\mid Y=y).
 \end{equation}
-因此，任何学习型检测器若希望逼近最优，本质上应逼近 $\{f_a^*\}$ 或其单调变换（如 logits）。
-
-\subsection{用交叉熵学习后验}
-设模型输出未归一分数 $f=(f_a)$，软概率 $q_a=f_a/\sum_b f_b$。期望交叉熵
+因此本方法直接最小化正则化多分类对数损失（交叉熵）
 \begin{equation}
-\mathbb{E}\big[-\log q_{X_1}(Y)\big]
-=\mathbb{E}\big[D_{\mathrm{KL}}\big(f^*(Y)\,\|\,q(Y)\big)\big]+\mathrm{Const}(f^*)
-\end{equation}
-在 $f^*$ 固定时与 $D_{\mathrm{KL}}(f^*\|q)$ 同步减小。于是定义正则化目标
-\begin{equation}
-J(f)=\mathbb{E}\Big[-\log\frac{f_{X_1}(Y)}{\sum_b f_b(Y)}\Big]
-+\lambda\,\|f\|_{\mathcal{H}}^2.
+J(g)=\mathbb{E}\Big[-\log\frac{\exp(g_{X_1}(Y))}{\sum_b\exp(g_b(Y))}\Big]
++\lambda\sum_a\|g_a\|_{\mathcal{H}}^2,
 \label{eq:Jtheory}
 \end{equation}
-第一项是后验拟合的严格真评分（proper scoring）代理；第二项把假设限制在某函数空间 $\mathcal{H}$ 内并控制复杂度。本报告取 $\mathcal{H}$ 为（向量值）RKHS。
+而不是把高阶 QAM 写成“符号幅度回归 + 超平带投影”。后者在高阶调制下与 MAP 脱节，工程上易被线性 MMSE 锁定（详见内部理论附录）。
 
-\subsection{与线性 MMSE 准则的对比}
-线性 MMSE 最小化 $\mathbb{E}\|X-\hat X\|^2$ 并限制 $\hat X$ 为 $Y$ 的线性函数，再硬判决。它优化的是\textbf{连续松弛 + 线性约束}下的均方误差，而非直接的符号后验。故：
-\begin{itemize}
-  \item MMSE 对应“线性模型层”上的最优线性估计；
-  \item $J(f)$ 对应“离散检测层”上的后验学习。
-\end{itemize}
-二者都合理，但评价与适用区间不同；这也解释了为何非线性后验学习有可能在低中 SNR 超过 MMSE。
+\section{RKHS 决策形式}
 
-\section{再生核希尔伯特空间}
-
-\subsection{核与再生性质}
-设输入空间为特征域 $\mathcal{X}$（本项目中典型为 $\mathbb{R}^{16}$）。对称正定核 $k:\mathcal{X}\times\mathcal{X}\to\mathbb{R}$ 诱导希尔伯特空间 $\mathcal{H}_k$，满足再生性质
+在特征坐标 $\varphi(y)$ 上采用核展开
 \begin{equation}
-g(x)=\langle g,\,k(\cdot,x)\rangle_{\mathcal{H}_k},\qquad \forall g\in\mathcal{H}_k,\; x\in\mathcal{X}.
+L(\varphi)=K_\eta(\varphi,C)\alpha^\top\in\mathbb{R}^{|\mathcal{A}|},\qquad
+\hat X_1=\arg\max_a L_a.
 \end{equation}
-点赋值泛函连续，使“在样本点上的损失 + RKHS 范数正则”成为良置问题\cite{aronszajn1950,schafer2006}。
+表示定理保证：经验风险 + RKHS 范数正则的最优解可由有限训练中心上的系数表示，部署只需存 $(\eta,\alpha)$（或分核 $\{\alpha_m\}$）。
 
-\subsection{高斯核与通用逼近}
-径向基核
+\textbf{坐标选择是关键：}在原始 $Y\in\mathbb{C}^{M}$ 上直接核拟合，高 SNR 后验过尖、数值不稳；本项目默认 $\varphi=z_{\mathrm{rob}}(y;\hat H)\in\mathbb{R}^{|\mathcal{A}|}$，与 $|\mathcal{A}|$ 元假设检验对齐。Oracle（真 $H$ 的 struct $+f^*$）用于验证“在合适坐标上核方法能逼近 MLD”；可部署路径不用真 $H$/真 $f^*$。
+
+\section{Adaptive-MKL（摘要）}
+\label{sec:mkl}
+
+单核带宽难同时适配高低 SNR。设多尺度 RBF 基核 $\{k_m\}$，组合
 \begin{equation}
-k_\gamma(x,x')=\exp\big(-\gamma\|x-x'\|^2\big)
+k_\eta=\sum_m\eta_m k_m,\qquad \eta\in\Delta,
 \end{equation}
-是最常用的通用核之一。在紧集上，相应 $\mathcal{H}_k$ 在连续函数空间中稠密\cite{steinwart2008}。直观上：只要目标函数在所选用的输入坐标上足够正则，便可用核展开逼近到任意精度——这是“\textbf{在一个核空间中可以无限逼近}”的数学含义。
+或等价的分核展开 $L=\sum_m K_m\alpha_m^\top$，正则采用组范数型
+$\sum_m\eta_m^{-1}\sum_a\alpha_{m,a}^\top K_m\alpha_{m,a}$（SimpleMKL 风格）。
+实现上：低中 SNR 用加密尺度库，高 SNR 收缩基核以防病态；与 $\lambda$、稳健加载的 SNR 调度一并写在第\ref{ch:exp}章配置表。
 
-\subsection{决策形式：非线性但可参数化}
-对多类 logits，本报告采用
-\begin{equation}
-L(x)=K_\eta(x,C)\,\alpha^\top\in\mathbb{R}^{16},\qquad
-\hat X_1=\arg\max_a L_a(x),
-\end{equation}
-其中 $C$ 为中心集。由于 $k$ 对 $x$ 非线性，整体决策是非线性的；又因表示定理（下节），训练后只需存储有限系数 $\alpha$（及核权重 $\eta$）。
+\section{与线性 MMSE 的分工}
 
-\section{表示定理：从无限维到有限维}
-
-考虑
-\begin{equation}
-\min_{g\in\mathcal{H}}
-\frac1n\sum_{i=1}^n \ell\big(g(x_i),y_i\big)+\lambda\|g\|_{\mathcal{H}}^2.
-\end{equation}
-若损失只通过 $\{g(x_i)\}$ 依赖 $g$，则存在最优解
-\begin{equation}
-g(\cdot)=\sum_{i=1}^n \alpha_i\,k(\cdot,x_i)
-\end{equation}
-（向量值情形同理，系数按类扩展）。这就是表示定理\cite{schafer2006,shawe2004}。于是：
-\begin{enumerate}[leftmargin=2em]
-  \item 不必在无限维函数空间中搜索；
-  \item 部署期计算是核向量与 $\alpha$ 的乘法；
-  \item 与深度黑盒相比，解的结构先验更强、正则几何更清楚。
-\end{enumerate}
-
-\subsection{Oracle：闭式拟合 $\log f^*$}
-当特权监督给出 $f^*$ 时，可令目标近似为核岭回归拟合去峰值后的 $\log f^*$：
-\begin{equation}
-\min_\alpha \|K\alpha^\top-Z\|_F^2+\lambda\|\alpha\|_{K}^2.
-\end{equation}
-这对应本项目 Oracle（\texttt{struct}+$f^*$）路径：在合适特征上验证 RKHS 表达力。
-
-\subsection{可部署：交叉熵 + 迭代优化}
-当只有硬标签 $X_1$ 时，$\ell$ 取交叉熵，$J$ 对 $\alpha$ 非二次，需 Adam / L-BFGS 等。\textbf{决策形式与 Oracle 相同}，仅监督与求解器不同——这保证“可逼近性上界”与“可部署主线”可比。
-
-\section{多核学习：在同一族 RKHS 中扩容}
-
-单核带宽 $\gamma$ 很难同时适配 0\,dB 与 10\,dB。设基核 $\{k_m\}$，
-\begin{equation}
-k_\eta=\sum_{m=1}^{M_k}\eta_m k_m,\qquad \eta\in\Delta^{M_k-1}.
-\end{equation}
-多核学习（MKL）在单纯形上学习 $\eta$，并可与 $\alpha$ 交替更新\cite{bach2004,micchelli2005,rakotomamonjy2008}。理论含义是：
-\begin{itemize}
-  \item 假设类变为基核 RKHS 的凸组合所诱导的更丰富空间；
-  \item 仍不离开核方法框架，表示定理仍然适用；
-  \item Adaptive-MKL 把“选带宽”变成数据驱动的凸组合权重学习。
-\end{itemize}
-实现上，低中 SNR 使用更密的尺度组，高 SNR 收缩基核以防病态——这是数值稳定性对理论表达力的约束，而非否定 MKL。
-
-\section{核内系数参数化与同空间聚合}
-
-表示定理说明最优解在核张成的有限维子空间中，但 $\alpha$ 的参数化仍可选择：
-\begin{itemize}
-  \item 自由 $\alpha$（经典 MKL）；
-  \item 由小型网络生成 $\alpha$（核内 NN）：\textbf{不改变} $L=K_\eta\alpha^\top$ 的决策形式，只改变系数的生成方式；
-  \item 多候选 $\alpha^{(j)}$ 在验证集上按 $J$ 聚合后，再投影回同一 $K_\eta$ 上的单份 $\alpha$。
-\end{itemize}
-它们都属于“同 RKHS 决策形式上的表达/优化增强”，与改用纯黑盒网络不同。
-
-\section{可逼近性命题：特征坐标决定一切}
-
-\subsection{命题（非正式）}
-若特征映射 $\varphi$ 使后验（或其 logits）作为 $\varphi(Y)$ 的函数具有足够正则性，且核为通用核，则存在核展开序列在 $L^2$/一致意义下逼近该后验；经验上表现为 Oracle 的 BER/$J$/MSE 贴合 MLD。
-
-\subsection{反例：错误坐标}
-若取 $\varphi(Y)=Y\in\mathbb{C}^{M}$（盲特征），高 SNR 下 $f^*(Y)$ 近 one-hot、决策边界极陡，有限中心 + 固定带宽的核插值极易失败——旧盲-$y$ Oracle 高 SNR 崩坏即为此。
-
-\subsection{正例：结构化坐标}
-若取 $\varphi(Y)=z(Y;H)\in\mathbb{R}^{16}$（真 $H$ 的 GA 软分），坐标与 16 元假设检验对齐，后验作为 $z$ 的函数平滑得多，闭式/多核拟合可贴合 MLD。可部署时 $\varphi(Y)=z_{\mathrm{rob}}(Y;\hat H)$，相当于在\textbf{扰动后的坐标}上仍用同一理论框架学习；与 MLD 的间隙主要来自坐标偏移（CSI 误差），而非核空间先天无能。
-
-\begin{center}
-\fbox{\parbox{0.92\linewidth}{\centering
-\textbf{一句话：}\\[0.25em]
-“可以无限逼近”成立于合适 RKHS；\\
-而合适与否，首先取决于特征坐标是否与后验匹配。}}
-\end{center}
-
-\section{正则、中心数与泛化}
-
-$\lambda\|f\|_{\mathcal{H}}^2$ 控制有效复杂度；过小则插值噪声，过大则欠拟合。实现中用与 $N_0$、$n$ 相关的理论锚点设定 $\lambda$，并随 SNR 调整。中心数 $|C|$：特征维低（16）时可取较大字典（约 $10^3$ 量级）；盲高维特征则必须更克制。这些是泛化理论在有限样本下的工程对应。
-
-\section{理论小结：与线性/非线性章节的衔接}
-
-\begin{enumerate}[leftmargin=2em]
-  \item 最优检测是后验意义下的非线性规则；用 $J(f)$ 学习后验是正确的贝叶斯代理。
-  \item RKHS + 表示定理提供一类可分析、可部署的非线性假设类。
-  \item MKL / 核内系数学习在\textbf{不离开核决策形式}的前提下扩大表达力。
-  \item 通用逼近不能替代特征设计：struct / $z_{\mathrm{rob}}$ 使“可逼近”成为可实证的命题。
-\end{enumerate}
-下一章把上述理论装配为可运行的检测流水线（方法）。
+MMSE 优化线性约束下的均方误差再切片；$J(g)$ 直接优化分类型后验风险。二者可并存：本报告以相对 MMSE 的 BER 降幅 $G$ 作为主要工程指标（定义见第\ref{ch:exp}章）。

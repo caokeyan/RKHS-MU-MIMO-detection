@@ -1,33 +1,41 @@
-\chapter{讨论、展望与结论}
+\chapter{讨论与结论}
 \label{ch:discuss}
 
-\section{理论图景的再表述}
+\section{结果要点}
 
-把本工作的理论图景压缩为三句话：
 \begin{enumerate}[leftmargin=2em]
-  \item 贝叶斯最优检测等价于掌握后验 $f^*$；学习检测器应直接以 $J(f)$ 逼近该目标。
-  \item RKHS 提供可分析的假设类；在与 GA-MLD 对齐的 $|\mathcal{A}|$ 维坐标上，核方法具有现实可逼近性。
-  \item 可部署性迫使坐标改为 $z_{\mathrm{rob}}(\hat H)$、监督改为 hard；性能损失主要来自信息减损，应用稳健加载与 MKL 表达去弥补。
+  \item \textbf{可部署性成立.}
+  $z_{\mathrm{rob}}(\hat H)$+Adaptive-MKL 不依赖真 $H$ 与真后验 $f^*$；Oracle（真 $H$+$f^*$）与 MLD 一致，说明在结构坐标上核逼近有效，主线差距主要来自 CSI/坐标估计而非“核方法无效”。
+  \item \textbf{中期线性区有稳定正增益.}
+  16-QAM、0--10\,dB 相对 MMSE+LS 约降低 BER $19\%$--$35\%$（见第\ref{ch:exp}章中期表）。
+  \item \textbf{前端失配是优势工况.}
+  同一流水线在 soft-clip / Kerr / MZM / hard-clip 等幅度型失真下，平均 $G$ 约 $23\%$--$52\%$；软限幅尤为突出。原因是线性 MMSE 仍按 $Y=HX+N$ 工作，而 RKHS 在 $z_{\mathrm{rob}}$ 上直接拟合失配后的判决边界。
+  \item \textbf{更真实信道可迁移.}
+  Kronecker 相关 + soft-clip 平均 $G\approx 39\%$（12\,dB 约 $61\%$）；在为每用户打散到达角后的 CDL-A 上，soft-clip 平均约 $19\%$（表\ref{tab:kron-gain}--\ref{tab:cdl-gain}）。这说明收益不只建立在 i.i.d.\ Rayleigh 上。
+  \item \textbf{64-QAM 可直接切换星座.}
+  绝对 BER 升高符合星座加密；相对 MMSE 的增益模式与 16-QAM 一致。线性高 SNR 仍可能出现负 $G$，属稀有错误 + 有限样本核估计的已知瓶颈。
+  \item \textbf{soft-clip 下的 MLD“地板”不是实现错误.}
+  前端压缩后，按线性模型计分的 MLD/Oracle 会出现约 $0.27$--$0.32$ 的误码地板；可部署 RKHS 仍可相对 MMSE 拉开差距。解读时勿把该地板误当成信道病态。
 \end{enumerate}
 
-\section{与深度学习路线的关系}
+\section{工程取舍}
 
-本方法不排斥神经网络，而是把 NN 限制在\textbf{核系数生成器}位置，从而保留 $K_\eta\alpha^\top$ 的可解释决策形式。若未来引入更深的端到端网络，建议仍以 $J$ 为主要目标，并显式建模 CSI 不确定度，以免重复“把 $\hat H$ 当真 $H$”的错误。
+\begin{itemize}[leftmargin=2em]
+  \item 坚持可部署约束：不用真 $H$、不用 $f^*$ 监督；Oracle 仅作上界对照。
+  \item NN 只生成核系数，不替换 $K_\eta\alpha^\top$ 决策形式。
+  \item 高 SNR：减弱稳健加载、关闭堆叠、减小正则；已赢 MMSE 或处于高误码地板时不再空转 $\lambda$ 重试。
+  \item CDL 多用户必须角度可分；禁止把单链路 CDL 原样复制 $K$ 次。
+\end{itemize}
 
 \section{后续工作}
 
 \begin{enumerate}[leftmargin=2em]
-  \item \textbf{验证选择稳定化}：联合 BER+$J$ 选模，减少单次验证噪声导致的回退；
-  \item \textbf{中心选择}：按 margin / 类平衡构造字典，替代纯随机子集；
-  \item \textbf{SNR 自适应}：加载强度、$\lambda$、基核组随 SNR 平滑调度；
-  \item \textbf{更真实信道}：空间相关、上行导频污染、量化接收；
-  \item \textbf{复杂度}：Nyström、随机特征、滑动字典，面向实时；
-  \item \textbf{多用户扩展}：由只检 $X_1$ 扩展到分组检测或软干扰消除外环。
+  \item 高 SNR 与线性 MMSE 的融合/切换；
+  \item 更大规模系统级信道、导频污染与导频开销敏感性；
+  \item Nyström / 随机特征以降复杂度，并给出相对 MMSE 的时延对照；
+  \item 由只检 $X_1$ 扩展到多用户软信息输出。
 \end{enumerate}
 
 \section{结论}
 
-本报告围绕大规模 MU-MIMO 单用户边际检测，建立了以 RKHS 为假设类、以贝叶斯后验损失为主目标的方法体系。通过稳健特征 $z_{\mathrm{rob}}$、Adaptive-MKL 与核内学习增强，在 $128\times40$、16-QAM、0--10\,dB 设定下取得相对 MMSE+LS 约 19\%--35\% 的 BER 降低；在多种无记忆前端失真及 64-QAM 迁移实验中，相对增益 $G$ 在幅度型失配场景可进一步扩大（详见第\ref{ch:exp}章）。通过 struct+$f^*$ Oracle 实证了核空间对后验的可逼近性。工作表明：\textbf{通信结构（充分统计与 CSI 稳健化）与核学习（表示定理与 MKL）的结合}，是一条介于经典线性接收与黑盒深度检测之间、值得继续深化的技术路线。
-
-\section*{致谢}
-感谢课程与研讨中对目标函数表述、可部署约束与 Oracle 含义的反复澄清；这些约束直接塑造了最终主线。
+本报告给出一套以 RKHS 为假设类、以贝叶斯后验损失为目标的大规模 MU-MIMO 单用户检测方案。通过 $z_{\mathrm{rob}}$、Adaptive-MKL 与核内增强，在 i.i.d.\ / Kronecker / CDL、多种前端失真及 16/64-QAM 设定下相对 MMSE+LS 取得可量化的 BER 增益；方法形式保持核展开判决，满足可部署约束，具备工程对照与继续产品化的基础。
