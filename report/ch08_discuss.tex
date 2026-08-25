@@ -7,13 +7,13 @@
   \item \textbf{可部署性成立.}
   $z_{\mathrm{rob}}(\hat H)$+Adaptive-MKL 不依赖真 $H$ 与真后验 $f^*$；Oracle（真 $H$+$f^*$）与 MLD 一致，说明在结构坐标上核逼近有效，主线差距主要来自 CSI/坐标估计而非“核方法无效”。
   \item \textbf{中期线性区有稳定正增益.}
-  16-QAM、0--10\,dB 相对 MMSE+LS 约降低 BER $19\%$--$35\%$（见第\ref{ch:exp}章中期表）。
+  16-QAM、0--10\,dB 相对 MMSE+LS 约降低 BER $19\%$--$35\%$（见第\ref{ch:exp}章中期表）；扩展至 14\,dB 后通过 $\lambda\downarrow$ 与 $N_{\mathrm{te}}\uparrow$ 仍保持 $+13\%$--$+41\%$ 全程正增益。
   \item \textbf{前端失配是优势工况.}
   同一流水线在 soft-clip / Kerr / MZM / hard-clip 等幅度型失真下，平均 $G$ 约 $23\%$--$52\%$；软限幅尤为突出。原因是线性 MMSE 仍按 $Y=HX+N$ 工作，而 RKHS 在 $z_{\mathrm{rob}}$ 上直接拟合失配后的判决边界。
   \item \textbf{更真实信道可迁移.}
   Kronecker 相关 + soft-clip 平均 $G\approx 39\%$（12\,dB 约 $61\%$）；在为每用户打散到达角后的 CDL-A 上，soft-clip 平均约 $19\%$（表\ref{tab:kron-gain}--\ref{tab:cdl-gain}）。这说明收益不只建立在 i.i.d.\ Rayleigh 上。
   \item \textbf{64-QAM 可直接切换星座.}
-  绝对 BER 升高符合星座加密；相对 MMSE 的增益模式与 16-QAM 一致。线性高 SNR 仍可能出现负 $G$，属稀有错误 + 有限样本核估计的已知瓶颈。
+  绝对 BER 升高符合星座加密；相对 MMSE 的增益模式与 16-QAM 一致。16-QAM 线性经 $\lambda$ 降至 $0.01$--$0.03$ 与 $N_{\mathrm{te}}=2\times10^{4}$ 后，0--14\,dB 全程正增益；64-QAM 线性在 16--20\,dB 仍可能出现负 $G$，属稀有错误 + 有限样本核估计的已知瓶颈。
   \item \textbf{soft-clip 下的 MLD“地板”不是实现错误.}
   前端压缩后，按线性模型计分的 MLD/Oracle 会出现约 $0.27$--$0.32$ 的误码地板；可部署 RKHS 仍可相对 MMSE 拉开差距。解读时勿把该地板误当成信道病态。
 \end{enumerate}

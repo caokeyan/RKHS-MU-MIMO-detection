@@ -1,0 +1,18 @@
+mod=16-QAM  scenarios=['linear']  snr=[10.0]  n_train=4500 n_test=20000 n_chan=2  channel=iid root=extended_results/qam16_n3500
+
+==== scenario linear mode=none beta=0.0 (16-QAM) ====
+  [linear] H1 channel=iid ||H||_F=72.015
+  [linear/H1/2 SNR=  10] 开始六方法…
+  [linear/H1/2 SNR=  10] MLD            完成  BER=0.000e+00     0.0s
+  [linear/H1/2 SNR=  10] MMSE+LS        完成  BER=2.570e-02     0.2s  MC×3
+  [linear/H1/2 SNR=  10] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear/H1/2 SNR=  10] RKHS(z_rob)    完成  BER=1.936e-02   741.3s  n_center=3500 α=approx_hard_proj[mkl:0.00+bag1:0.00+bag2:0.00+nn:1.00+diag:0.00]_struct_hat_robust+stack2 trSER=0.076
+  [linear/H1/2 SNR=  10] CNN            完成  BER=n/a     0.0s  跳过
+  [linear/H1/2 SNR=  10] Oracle        struct(H)+f* 拟合…
+  [linear/H1/2 SNR=  10] RKHS Oracle    完成  BER=0.000e+00    41.5s  n_center=3500 approx_fstar_struct γ=1.12e-02 MSE_te=1.59e-33
+  [linear] H1 SNR=10 MLD=0.000e+00 Oracle=0.000e+00 RKHS=1.936e-02 MMSE=2.570e-02 gain=+24.7% dt=941.9s
+  [linear] H2 channel=iid ||H||_F=71.715
+  [linear/H2/2 SNR=  10] 开始六方法…
+  [linear/H2/2 SNR=  10] MLD            完成  BER=0.000e+00     0.0s
+  [linear/H2/2 SNR=  10] MMSE+LS        完成  BER=2.448e-02     0.2s  MC×3
+  [linear/H2/2 SNR=  10] RKHS 盲         完成  BER=n/a     0.0s  跳过

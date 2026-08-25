@@ -15,6 +15,8 @@ import argparse
 import time
 
 import matplotlib.pyplot as plt
+plt.rcParams["font.sans-serif"] = ["Arial Unicode MS", "STHeiti", "Songti SC", "DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
 import numpy as np
 
 from kernel_rkhs import RKHSDetector

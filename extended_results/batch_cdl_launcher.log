@@ -1,0 +1,4 @@
+  File "<string>", line 18
+    f.write(f"\nLAUNCH {
+                       ^
+SyntaxError: '{' was never closed

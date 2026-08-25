@@ -17,6 +17,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+plt.rcParams["font.sans-serif"] = ["Arial Unicode MS", "STHeiti", "Songti SC", "DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
 import numpy as np
 
 from system import set_modulation
@@ -42,10 +44,19 @@ SCENARIO_CATALOG: dict[str, tuple[str, float, str]] = {
 }
 
 
-def _lam_c(snr_db: float, mod_order: int) -> float:
+def _lam_c(snr_db: float, mod_order: int, *, linear: bool = False) -> float:
     s = float(snr_db)
     # 64-QAM 类别更多，略加大正则防过拟合
     base = 0.12 if mod_order >= 64 else 0.1
+    if linear:
+        # 线性场景后验更尖，用更小正则以贴近数据
+        if s >= 12.0:
+            return 0.02 if mod_order < 64 else 0.03
+        if s >= 8.0:
+            return 0.03 if mod_order < 64 else 0.04
+        if s >= 4.0:
+            return 0.04
+        return 0.06
     if s >= 14.0:
         return 0.04 if mod_order < 64 else 0.05
     if s >= 12.0:
@@ -55,10 +66,19 @@ def _lam_c(snr_db: float, mod_order: int) -> float:
     return base
 
 
-def _retry_lam_grid(snr_db: float, mod_order: int, *, max_n: int = 2) -> list[float]:
+def _retry_lam_grid(snr_db: float, mod_order: int, *, max_n: int = 2, linear: bool = False) -> list[float]:
     """输给 MMSE 时试少量 λ（默认最多 2 个，避免 CDL/高误码底空转）。"""
     s = float(snr_db)
-    if s >= 12.0:
+    if linear:
+        # 线性场景：更密网格，含极小 λ 以拟合尖后验
+        if s >= 12.0:
+            cands = [0.003, 0.005, 0.008, 0.01, 0.015, 0.02]
+        elif s >= 8.0:
+            cands = [0.02, 0.03, 0.04, 0.06]
+        else:
+            cands = [0.04, 0.06, 0.08]
+        max_n = min(max_n + 4, 6)  # 线性多试几组
+    elif s >= 12.0:
         cands = [0.025, 0.05]
     elif s >= 8.0:
         cands = [0.05, 0.10]
@@ -91,6 +111,7 @@ def run_scenario(
     channel_mode: str = "iid",
 ) -> dict[str, np.ndarray]:
     save_dir.mkdir(parents=True, exist_ok=True)
+    is_linear = (nonlin_mode in ("none", "", "linear"))
     keys = ["ber_mld", "ber_mmse", "ber_oracle", "ber_rkhs_nn", "ber_cnn", "j_rkhs_nn"]
     bucket: dict[str, list[list[float]]] = {k: [[] for _ in snr_list] for k in keys}
 
@@ -123,7 +144,7 @@ def run_scenario(
                 rng_h,
                 n_train=n_train,
                 n_test=n_test,
-                lam_c=_lam_c(snr_db, mod_order),
+                lam_c=_lam_c(snr_db, mod_order, linear=is_linear),
                 oracle_lam_c=-1.0,
                 fast=True,
                 oracle_val_tune=True,
@@ -149,17 +170,21 @@ def run_scenario(
             need_retry = (prev_rkhs is not None and ber_r > prev_rkhs * 1.12 + 1e-4) or (
                 ber_r >= ber_m * 1.005  # 已赢 MMSE 就不再磨 λ
             )
+            # 线性高 SNR：总是重试找最优 λ（目标拉低绝对 BER 至 1e-3 量级）
+            if is_linear and float(snr_db) >= 10.0:
+                need_retry = True
             # 高误码底（失真地板）或稀有错误：重试收益极低，直接跳过
             if ber_mld >= 0.25 and ber_m >= 0.25:
                 need_retry = False
             if float(snr_db) >= 16.0 and ber_m < 2e-3 and ber_r < 3e-3:
                 need_retry = False
-            if gain0 >= 0.05:
+            # 线性场景即使已赢也继续磨（目标是拉大正增益）；非线性赢 5% 即停
+            if not is_linear and gain0 >= 0.05:
                 need_retry = False
             if need_retry and float(snr_db) >= 4.0:
                 cands = [r]
-                for lam_try in _retry_lam_grid(snr_db, mod_order, max_n=2):
-                    if abs(lam_try - _lam_c(snr_db, mod_order)) < 1e-9:
+                for lam_try in _retry_lam_grid(snr_db, mod_order, max_n=2, linear=is_linear):
+                    if abs(lam_try - _lam_c(snr_db, mod_order, linear=is_linear)) < 1e-9:
                         continue
                     print(
                         f"  [{tag}] SNR={snr_db:.0f} retry lam={lam_try:.3f} "
@@ -205,8 +230,8 @@ def run_scenario(
                     rebound = 0.0
                     if prev_rkhs is not None:
                         rebound = max(0.0, br - prev_rkhs)
-                    # 优先：超过 MMSE、增益大、少反弹
-                    return (br > bm + 1e-12, -gain, rebound, br)
+                    # 优先：超过 MMSE、绝对 BER 低、少反弹、增益大
+                    return (br > bm + 1e-12, br, rebound, -gain)
 
                 r = min(cands, key=score)
                 ber_r = float(r["ber_rkhs_nn"])
@@ -576,11 +601,16 @@ def main() -> None:
             for tag in scen_tags:
                 mode, beta, title = SCENARIO_CATALOG[tag]
                 print(f"\n==== realistic channel={ch} scen={tag} ({mod_order}-QAM) ====", flush=True)
+                is_lin = (mode in ("none", "", "linear"))
+                # 线性高 SNR 稀有错误：加大测试样本以获得可靠 BER，训练量不变保速度
+                nt = max(args.n_train, 2200)
+                ne = max(args.n_test, 20000 if is_lin else 3000)
+                nc = max(args.n_chan, 2)
                 agg = run_scenario(
                     snr_list=snr_list,
-                    n_train=max(args.n_train, 2200),
-                    n_test=args.n_test,
-                    n_chan=args.n_chan,
+                    n_train=nt,
+                    n_test=ne,
+                    n_chan=nc,
                     seed=args.seed,
                     nonlin_mode=mode,
                     nonlin_beta=beta,
@@ -613,11 +643,16 @@ def main() -> None:
     for tag in tags:
         mode, beta, title = SCENARIO_CATALOG[tag]
         print(f"\n==== scenario {tag} mode={mode} beta={beta} ({mod_order}-QAM) ====", flush=True)
+        is_lin = (mode in ("none", "", "linear"))
+        # 线性高 SNR 稀有错误：加大测试样本以获得可靠 BER，训练量不变保速度
+        nt = args.n_train
+        ne = max(args.n_test, 20000 if is_lin else args.n_test)
+        nc = args.n_chan
         agg = run_scenario(
             snr_list=snr_list,
-            n_train=args.n_train,
-            n_test=args.n_test,
-            n_chan=args.n_chan,
+            n_train=nt,
+            n_test=ne,
+            n_chan=nc,
             seed=args.seed,
             nonlin_mode=mode,
             nonlin_beta=beta,

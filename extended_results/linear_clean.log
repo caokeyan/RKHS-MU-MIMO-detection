@@ -1,0 +1,45 @@
+mod=16-QAM  scenarios=['linear']  snr=[12.0]  n_train=2500 n_test=20000 n_chan=2  channel=iid root=extended_results/qam16_clean
+
+==== scenario linear mode=none beta=0.0 (16-QAM) ====
+  [linear] H1 channel=iid ||H||_F=72.015
+  [linear/H1/2 SNR=  12] 开始六方法…
+  [linear/H1/2 SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear/H1/2 SNR=  12] MMSE+LS        完成  BER=6.158e-03     0.2s  MC×3
+  [linear/H1/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear/H1/2 SNR=  12] RKHS(z_rob)    完成  BER=5.962e-03   182.4s  n_center=1800 α=approx_hard_mkl+diag_struct_hat_robust+stack2 trSER=0.013
+  [linear/H1/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [linear/H1/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [linear/H1/2 SNR=  12] RKHS Oracle    完成  BER=0.000e+00    20.0s  n_center=1800 approx_fstar_struct γ=9.10e-03 MSE_te=2.43e-30
+  [linear] SNR=12 retry lam=0.003 (BER_rkhs=5.962e-03, MMSE=6.158e-03)
+  [linear/H1/2-retry SNR=  12] 开始六方法…
+  [linear/H1/2-retry SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear/H1/2-retry SNR=  12] MMSE+LS        完成  BER=7.340e-03     0.3s  MC×5
+  [linear/H1/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear/H1/2-retry SNR=  12] RKHS(z_rob)    完成  BER=6.038e-03   145.3s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+bag2:0.00+nn:1.00+diag:0.00]_struct_hat_robust+stack2 trSER=0.013
+  [linear/H1/2-retry SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [linear/H1/2-retry SNR=  12] Oracle        struct(H)+f* 拟合…
+  [linear/H1/2-retry SNR=  12] RKHS Oracle    完成  BER=0.000e+00    21.0s  n_center=1800 approx_fstar_struct γ=9.29e-03 MSE_te=2.38e-33
+  [linear] H1 SNR=12 MLD=0.000e+00 Oracle=0.000e+00 RKHS=5.962e-03 MMSE=6.158e-03 gain=+3.2% dt=398.0s
+  [linear] H2 channel=iid ||H||_F=71.715
+  [linear/H2/2 SNR=  12] 开始六方法…
+  [linear/H2/2 SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear/H2/2 SNR=  12] MMSE+LS        完成  BER=8.950e-03     0.2s  MC×3
+  [linear/H2/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear/H2/2 SNR=  12] RKHS(z_rob)    完成  BER=2.737e-03    98.7s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.00+bag2:0.03+nn:0.48+diag:0.49]_struct_hat_robust+stack2 trSER=0.002
+  [linear/H2/2 SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [linear/H2/2 SNR=  12] Oracle        struct(H)+f* 拟合…
+  [linear/H2/2 SNR=  12] RKHS Oracle    完成  BER=0.000e+00    20.4s  n_center=1800 approx_fstar_struct γ=9.11e-03 MSE_te=3.50e-32
+  [linear] SNR=12 retry lam=0.003 (BER_rkhs=2.737e-03, MMSE=8.950e-03)
+  [linear/H2/2-retry SNR=  12] 开始六方法…
+  [linear/H2/2-retry SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear/H2/2-retry SNR=  12] MMSE+LS        完成  BER=4.828e-03     0.3s  MC×5
+  [linear/H2/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过
+  [linear/H2/2-retry SNR=  12] RKHS(z_rob)    完成  BER=5.687e-03   196.6s  n_center=1800 α=approx_hard_proj[mkl:0.00+bag1:0.02+bag2:0.61+nn:0.00+diag:0.36]_struct_hat_robust+stack2 trSER=0.010
+  [linear/H2/2-retry SNR=  12] CNN            完成  BER=n/a     0.0s  跳过
+  [linear/H2/2-retry SNR=  12] Oracle        struct(H)+f* 拟合…
+  [linear/H2/2-retry SNR=  12] RKHS Oracle    完成  BER=0.000e+00    21.8s  n_center=1800 approx_fstar_struct γ=9.09e-03 MSE_te=5.19e-33
+  [linear] SNR=12 retry lam=0.005 (BER_rkhs=2.737e-03, MMSE=8.950e-03)
+  [linear/H2/2-retry SNR=  12] 开始六方法…
+  [linear/H2/2-retry SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear/H2/2-retry SNR=  12] MMSE+LS        完成  BER=6.467e-03     0.3s  MC×5
+  [linear/H2/2-retry SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过

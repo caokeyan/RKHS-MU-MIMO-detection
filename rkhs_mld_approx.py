@@ -123,6 +123,21 @@ def robust_struct_z_features(
     return (z - z.max(axis=1, keepdims=True)).astype(np.float64)
 
 
+def _mmse_soft_scores(
+    y: np.ndarray,
+    H_hat: np.ndarray,
+    n0_hat: float,
+) -> np.ndarray:
+    """MMSE 均衡后对每个星座点的负距离平方（软分），(N, M) float64。"""
+    from system import CONSTELLATION
+    from mmse import mmse_equalize
+    x_hat = mmse_equalize(y, H_hat, n0_hat)  # (N, K)
+    x1 = x_hat[:, 0]  # (N,) complex
+    diff = x1[:, None] - CONSTELLATION[None, :]  # (N, M)
+    scores = -np.abs(diff) ** 2  # (N, M)
+    return scores.astype(np.float64)
+
+
 def compact_csi_features(
     H_hat: np.ndarray,
     n0_hat: float | np.ndarray,
@@ -1142,7 +1157,10 @@ class RKHSApproxMLDDetector:
             and float(snr_db) >= 6.0  # 低 SNR 堆叠易过拟合
         ):
             soft1 = _softmax_rows(logits)
-            X2_raw = np.concatenate([X, soft1], axis=1)
+            # 利用所有特征：加入 MMSE 软输出（不同检测器视角）
+            mmse_soft = _mmse_soft_scores(y_train, self.H_hat, self.n0_hat)
+            mmse_soft = (mmse_soft - mmse_soft.max(axis=1, keepdims=True)).astype(np.float64)
+            X2_raw = np.concatenate([X, soft1, mmse_soft], axis=1)
             X2, m2, s2 = _normalize_fit(X2_raw)
             self.feat2_mean, self.feat2_std = m2, s2
             self.X2_centers = X2
@@ -1262,7 +1280,10 @@ class RKHSApproxMLDDetector:
         if not self.stack_active or self.alpha2 is None or self.X2_centers is None:
             return logits1
         soft1 = _softmax_rows(logits1)
-        X2_raw = np.concatenate([X, soft1], axis=1)
+        # 利用所有特征：加入 MMSE 软输出
+        mmse_soft = _mmse_soft_scores(y, self.H_hat, self.n0_hat)
+        mmse_soft = (mmse_soft - mmse_soft.max(axis=1, keepdims=True)).astype(np.float64)
+        X2_raw = np.concatenate([X, soft1, mmse_soft], axis=1)
         X2 = _normalize_apply(X2_raw, self.feat2_mean, self.feat2_std)
         base2 = build_base_kernels(
             X2, float(self.gamma2), self.X2_centers, ms_ratios=self.ms_ratios2
