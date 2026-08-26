@@ -1157,10 +1157,13 @@ class RKHSApproxMLDDetector:
             and float(snr_db) >= 6.0  # 低 SNR 堆叠易过拟合
         ):
             soft1 = _softmax_rows(logits)
-            # 利用所有特征：加入 MMSE 软输出（不同检测器视角）
-            mmse_soft = _mmse_soft_scores(y_train, self.H_hat, self.n0_hat)
-            mmse_soft = (mmse_soft - mmse_soft.max(axis=1, keepdims=True)).astype(np.float64)
-            X2_raw = np.concatenate([X, soft1, mmse_soft], axis=1)
+            # 利用所有特征：z_rob + softmax(L1) + MMSE软分(仅SNR<14，高SNR会回退)
+            parts = [X, soft1]
+            if float(snr_db) < 14.0:
+                mmse_soft = _mmse_soft_scores(y_train, self.H_hat, self.n0_hat)
+                mmse_soft = (mmse_soft - mmse_soft.max(axis=1, keepdims=True)).astype(np.float64)
+                parts.append(mmse_soft)
+            X2_raw = np.concatenate(parts, axis=1)
             X2, m2, s2 = _normalize_fit(X2_raw)
             self.feat2_mean, self.feat2_std = m2, s2
             self.X2_centers = X2
@@ -1280,10 +1283,13 @@ class RKHSApproxMLDDetector:
         if not self.stack_active or self.alpha2 is None or self.X2_centers is None:
             return logits1
         soft1 = _softmax_rows(logits1)
-        # 利用所有特征：加入 MMSE 软输出
-        mmse_soft = _mmse_soft_scores(y, self.H_hat, self.n0_hat)
-        mmse_soft = (mmse_soft - mmse_soft.max(axis=1, keepdims=True)).astype(np.float64)
-        X2_raw = np.concatenate([X, soft1, mmse_soft], axis=1)
+        # 利用所有特征：z_rob + softmax(L1) + MMSE软分(仅SNR<14)
+        parts = [X, soft1]
+        if float(self.snr_db) < 14.0:
+            mmse_soft = _mmse_soft_scores(y, self.H_hat, self.n0_hat)
+            mmse_soft = (mmse_soft - mmse_soft.max(axis=1, keepdims=True)).astype(np.float64)
+            parts.append(mmse_soft)
+        X2_raw = np.concatenate(parts, axis=1)
         X2 = _normalize_apply(X2_raw, self.feat2_mean, self.feat2_std)
         base2 = build_base_kernels(
             X2, float(self.gamma2), self.X2_centers, ms_ratios=self.ms_ratios2

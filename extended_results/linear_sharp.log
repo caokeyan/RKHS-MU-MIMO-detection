@@ -1,0 +1,8 @@
+mod=16-QAM  scenarios=['linear']  snr=[12.0, 14.0]  n_train=3000 n_test=20000 n_chan=2  channel=iid root=extended_results/qam16_sharp
+
+==== scenario linear mode=none beta=0.0 (16-QAM) ====
+  [linear] H1 channel=iid ||H||_F=72.015
+  [linear/H1/2 SNR=  12] 开始六方法…
+  [linear/H1/2 SNR=  12] MLD            完成  BER=0.000e+00     0.0s
+  [linear/H1/2 SNR=  12] MMSE+LS        完成  BER=6.308e-03     0.2s  MC×3
+  [linear/H1/2 SNR=  12] RKHS 盲         完成  BER=n/a     0.0s  跳过

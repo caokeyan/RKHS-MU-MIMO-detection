@@ -570,53 +570,6 @@ def _fit_rkhs_nn(
             lbfgs_maxiter=int(rkhs_opts["nn_lbfgs_maxiter"]),
             verbose=False,
         )
-        # ---- 标签清洗 (self-training) ----
-        # 硬标签 + 高 SNR：用训练好的 RKHS 预测训练集，高置信度处翻转错误标签，再重训
-        if (
-            tgt == "hard"
-            and float(snr_db) >= 10.0
-            and f_star_train is None
-            and feature_mode in ("struct_hat", "cond_hat")
-        ):
-            try:
-                scores = det.scores(y_fit)  # (N, M)
-                preds = np.argmax(scores, axis=-1)  # (N,)
-                max_prob = np.max(scores, axis=-1)  # (N,)
-                disagree = (preds != s1_fit) & (max_prob > 0.85)
-                n_flip = int(disagree.sum())
-                # 限制翻转比例 ≤ 3%，避免过度清洗
-                max_flip = int(0.03 * len(s1_fit))
-                if 0 < n_flip <= max_flip:
-                    s1_clean = s1_fit.copy()
-                    s1_clean[disagree] = preds[disagree]
-                    det2 = RKHSApproxMLDDetector(
-                        feature_mode=feature_mode if feature_mode != "cond_hat" else "struct_hat",
-                        target=tgt,
-                        lam_c=lam_c_use,
-                        kernel_mode=kernel_mode if kernel_mode in ("single", "multiscale", "adaptive") else "adaptive",
-                        ms_ratios=ratios,
-                        robust_csi=True,
-                        expr_tune=False,
-                        lock_ms_ratios=True,
-                        gamma_scale=1.0,
-                        use_nn=use_hard_enh,
-                        aggregate=use_hard_enh,
-                        n_mkl_bags=3 if use_hard_enh else 1,
-                        stack_rkhs=stack_ok,
-                    )
-                    det2.fit(
-                        y_fit,
-                        s1_clean,
-                        H_eff=H_eff,
-                        snr_db=snr_db,
-                        f_star_train=None,
-                        adam_epochs=1000 if fast else 2000,
-                        lbfgs_maxiter=int(rkhs_opts["nn_lbfgs_maxiter"]),
-                        verbose=False,
-                    )
-                    return det2
-            except Exception:
-                pass  # 清洗失败则用原始模型
         return det
 
     if H_eff is not None and frontend in ("mmse", "ga", "pic", "auto"):

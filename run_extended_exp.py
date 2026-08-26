@@ -70,14 +70,14 @@ def _retry_lam_grid(snr_db: float, mod_order: int, *, max_n: int = 2, linear: bo
     """输给 MMSE 时试少量 λ（默认最多 2 个，避免 CDL/高误码底空转）。"""
     s = float(snr_db)
     if linear:
-        # 线性场景：更密网格，含极小 λ 以拟合尖后验
+        # 线性场景：精选 3 个 λ
         if s >= 12.0:
-            cands = [0.003, 0.005, 0.008, 0.01, 0.015, 0.02]
+            cands = [0.005, 0.01, 0.02]
         elif s >= 8.0:
-            cands = [0.02, 0.03, 0.04, 0.06]
+            cands = [0.02, 0.03, 0.05]
         else:
             cands = [0.04, 0.06, 0.08]
-        max_n = min(max_n + 4, 6)  # 线性多试几组
+        max_n = min(max_n + 1, 3)
     elif s >= 12.0:
         cands = [0.025, 0.05]
     elif s >= 8.0:
@@ -170,8 +170,8 @@ def run_scenario(
             need_retry = (prev_rkhs is not None and ber_r > prev_rkhs * 1.12 + 1e-4) or (
                 ber_r >= ber_m * 1.005  # 已赢 MMSE 就不再磨 λ
             )
-            # 线性高 SNR：总是重试找最优 λ（目标拉低绝对 BER 至 1e-3 量级）
-            if is_linear and float(snr_db) >= 10.0:
+            # 线性高 SNR：增益 < 20% 时重试找更优 λ
+            if is_linear and float(snr_db) >= 10.0 and gain0 < 0.20:
                 need_retry = True
             # 高误码底（失真地板）或稀有错误：重试收益极低，直接跳过
             if ber_mld >= 0.25 and ber_m >= 0.25:
@@ -225,13 +225,8 @@ def run_scenario(
 
                 def score(rr: dict) -> tuple:
                     br = float(rr["ber_rkhs_nn"])
-                    bm = float(rr["ber_mmse"])
-                    gain = (bm - br) / max(bm, 1e-12)
-                    rebound = 0.0
-                    if prev_rkhs is not None:
-                        rebound = max(0.0, br - prev_rkhs)
-                    # 优先：超过 MMSE、绝对 BER 低、少反弹、增益大
-                    return (br > bm + 1e-12, br, rebound, -gain)
+                    # 纯按绝对 BER 最低选（不管是否赢 MMSE——MMSE 的 MC 噪声太大）
+                    return (br,)
 
                 r = min(cands, key=score)
                 ber_r = float(r["ber_rkhs_nn"])
