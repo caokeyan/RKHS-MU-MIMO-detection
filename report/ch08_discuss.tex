@@ -7,7 +7,7 @@
   \item \textbf{可部署性成立.}
   $z_{\mathrm{rob}}(\hat H)$+Adaptive-MKL 不依赖真 $H$ 与真后验 $f^*$；Oracle（真 $H$+$f^*$）与 MLD 一致，说明在结构坐标上核逼近有效，主线差距主要来自 CSI/坐标估计而非“核方法无效”。
   \item \textbf{中期线性区有稳定正增益.}
-  16-QAM、0--10\,dB 相对 MMSE+LS 约降低 BER $19\%$--$35\%$（见第\ref{ch:exp}章中期表）；扩展至 14\,dB 后通过 $\lambda\downarrow$ 与 $N_{\mathrm{te}}\uparrow$ 仍保持 $+13\%$--$+41\%$ 全程正增益。
+  16-QAM、0--10\,dB 相对 MMSE+LS 约降低 BER $19\%$--$35\%$（见第\ref{ch:exp}章中期表）；扩展至 14\,dB 后通过 $\lambda\downarrow$ 与 $N_{\mathrm{te}}\uparrow$ 仍保持 $+20\%$--$+52\%$ 全程正增益，峰值出现在 12\,dB。
   \item \textbf{前端失配是优势工况.}
   同一流水线在 soft-clip / Kerr / MZM / hard-clip 等幅度型失真下，平均 $G$ 约 $23\%$--$52\%$；软限幅尤为突出。原因是线性 MMSE 仍按 $Y=HX+N$ 工作，而 RKHS 在 $z_{\mathrm{rob}}$ 上直接拟合失配后的判决边界。
   \item \textbf{更真实信道可迁移.}
